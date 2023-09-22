@@ -9,7 +9,7 @@
 
 
 
-# :fire EmotionUnify :fire
+# 🔥 EmotionUnify 🔥
 
 Welcome to the "Lernmi Multimodal Sentiment Analysis Toolkit" repository – your comprehensive solution for analyzing sentiment across multiple modalities within the Lernmi educational platform. This repository empowers educational professionals, students, and developers to harness the power of textual audio and visual data to gain deeper insights into the emotional aspects of educational content.
 
@@ -20,7 +20,7 @@ Welcome to the "Lernmi Multimodal Sentiment Analysis Toolkit" repository – you
 
 * [Installation](#Installation)
 
-* [Estado del proyecto](#Estado-del-proyecto)
+* [Notebooks](#Notbooks)
 
 * [Características de la aplicación y demostración](#Características-de-la-aplicación-y-demostración)
 
@@ -68,6 +68,9 @@ foobar.pluralize('goose')
 # returns 'phenomenon'
 foobar.singularize('phenomena')
 ```
+## 🐙 Notebooks 
+- Exploration datasets
+- Baseline
 
 ## Contributing
 

@@ -48,6 +48,12 @@ pip install -r requirenments.txt
 ```
 
 Get data:
+1.MOSEI     #CLONE THE REPO AND PUT INTO THE DATASETS DIRECTORY
+
+```BASH
+git clone https://github.com/CMU-MultiComp-Lab/CMU-MultimodalSDK.git && mv CMU-MultimodalSDK src/datasets/
+
+```
 
 1.Meld data:
 ```bash

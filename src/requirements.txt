@@ -1,7 +1,0 @@
-h5py
-validators
-tqdm
-numpy
-argparse
-requests
-colorama

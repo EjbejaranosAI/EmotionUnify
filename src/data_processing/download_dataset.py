@@ -7,16 +7,6 @@ import shutil
 import subprocess
 import tarfile
 
-def extract_all_tar_files(directory):
-    """
-    Recursively extract all .tar files within the given directory.
-    """
-    for root, _, files in os.walk(directory):
-        for file in files:
-            if file.endswith('.tar'):
-                tar_path = os.path.join(root, file)
-                with tarfile.open(tar_path, 'r') as tar:
-                    tar.extractall(path=root)
 
 def download_meld_dataset():
     """
@@ -52,18 +42,18 @@ def download_meld_dataset():
                 files_to_uncompress.append(file)
         if len(files_to_uncompress) >0:
             for file in files_to_uncompress:
-                os.system("tar -xzf " + path + '/' + file + " -C " + path)
-                os.remove(path + '/' + file)
+                # I want to extract the files in the same directory that was found it and later deleter the tar.gz files
+                tar = tarfile.open("./MELD/"+file)
+                tar.extractall("./MELD/")
+                tar.close()
+                os.remove("./MELD/"+file)
+
         else:
             print("No tar.gz files found")
-
-
-
-
-
-    except subprocess.CalledProcessError:
-        logging.error("Failed to run command")
+    except:
+        logging.error('Error in downloading MELD dataset')
         print('Error in downloading MELD dataset')
+
 
 if __name__ == "__main__":
     download_meld_dataset()

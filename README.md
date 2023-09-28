@@ -1,8 +1,7 @@
 
-{% embed url="[https://www.youtube.com/watch?v=o2dOSIDDr1w](https://api.wandb.ai/links/ejbejaranos22/r5ggxh4q)" caption="" %}
-
 ![GitHub Org's stars](https://img.shields.io/github/stars/EjbejaranosAI?style=social)
 ![Badge en Desarollo](https://img.shields.io/badge/STATUS-EN%20DESAROLLO-green)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/ait-bsc.svg?logo=python&logoColor=FFE873)](https://pypi.org/project/ait-bsc/)
 
 
 <h4 align="center">

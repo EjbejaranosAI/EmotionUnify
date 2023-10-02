@@ -1,5 +1,4 @@
 import os
-
 import librosa
 import moviepy.editor as mp
 import config
@@ -23,7 +22,6 @@ class VideoPreprocessing:
         self.video_path = video_path
 
     def split_video(self, intervals, output_dir):
-        print("---+++", self.downsampled_video_path)
         clip = mp.VideoFileClip(self.downsampled_video_path)
 
         # Crea el directorio de salida si no existe
@@ -48,13 +46,10 @@ class VideoPreprocessing:
         intervals = audio_preprocessing.split_audio_by_silence()
 
         output_dir = os.path.dirname(output_path)
-        print("------", intervals)
         audio_preprocessing.save_audio_intervals(intervals, output_dir)
         sr = librosa.get_samplerate(self.downsampled_audio_path)
 
         intervals_in_seconds = remove_too_small_intervals(intervals/22000)
-        print(f"@@@@@@@@@@@@@@@{sr}", intervals_in_seconds," | ", intervals/sr)
-
         self.split_video(intervals_in_seconds, output_dir)
 
 
@@ -62,7 +57,6 @@ class VideoPreprocessing:
                          resolution_scale=config.TARGET_VIDEO_RESOLUTION_SCALE,
                          audio_samplerate=config.TARGET_AUDIO_SAMPLERATE,
                          audio_bitrate=config.TARGET_AUDIO_BITRATE):
-        print("lo que llega ", output_path)
         video = mp.VideoFileClip(self.video_path)
 
         # Extraer el audio y guardar el archivo mp3
@@ -81,7 +75,6 @@ class VideoPreprocessing:
         video = video.set_fps(target_fps)
         video.write_videofile(output_path, codec="libx264", audio=False, logger=None)
         self.downsampled_video_path = output_path
-        print("#######", self.downsampled_video_path)
 
     def delete_temp_files(self):
         os.remove(self.downsampled_video_path)

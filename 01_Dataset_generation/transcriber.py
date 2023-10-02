@@ -2,6 +2,7 @@ import os
 import speech_recognition as sr
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from pydub import AudioSegment
+import time
 
 class AudioTranscriber:
     def __init__(self):
@@ -26,13 +27,19 @@ class AudioTranscriber:
     def transcribe_audio(self, audio_path):
         if audio_path.endswith(".mp3"):
             audio_path = self.convert_mp3_to_wav(audio_path)
-        with sr.AudioFile(audio_path) as source:
-            audio_data = self.recognizer.record(source)
+
+        for intento in range(5):
             try:
+                with sr.AudioFile(audio_path) as source:
+                    audio_data = self.recognizer.record(source)
                 transcription = self.recognizer.recognize_google(audio_data, language='es')
                 return transcription
-            except sr.UnknownValueError:
-                return "No se pudo transcribir el audio."
+            except Exception as e:
+                print(f"Intento {intento + 1}: Error al transcribir el audio: {e}. Repitiendo en 1 segundo...")
+                time.sleep(1)  # Espera 1 segundo antes de reintentar
+
+        return "-"
+
 
     def transcribe_mp3(self, mp3_path):
         wav_path = self.convert_mp3_to_wav(mp3_path)

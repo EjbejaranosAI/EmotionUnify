@@ -11,7 +11,11 @@ from preprocessing import Preprocess
 # TODO: FACILITAR INTERFAZ O ALGO PARA EVITAR PONER FPS, BITRATES... INCORRECTOS
 
 def show_dataset_structure():
+    
     dataset_path = 'dataset'
+    print(80*"=")
+    print(os.getcwd())
+    print(80*"=")
     folders = [folder for folder in os.listdir(dataset_path) if os.path.isdir(os.path.join(dataset_path, folder))]
     table_data = []
 
@@ -81,6 +85,7 @@ def confirm_dataset():
 
 
 def main():
+    os.chdir("./01_Dataset_generation/")
     if not config.SKIP_EXPLANATION:
         welcome_info()
 

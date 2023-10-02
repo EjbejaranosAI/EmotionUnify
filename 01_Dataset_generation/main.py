@@ -45,12 +45,12 @@ def welcome_info():
     print("\n    ╔══════════════════════════════════════════════════╗          ")
     print("    ║      Welcome to the PREPROCESSING PIPELINE!      ║")
     print("    ╚══════════════════════════════════════════════════╝\n")
-    print("║ This pipeline will preprocess your data for AI analysis 🤖\n")
+    print("║ This pipeline will preprocess your data for AI analysis 🤖 ║\n")
 
     print(f"    🚦Before starting, make sure there's a \"\{config.DATASET_FOLDER_PATH}\" folder in the \n"
           "    same \"main.py\" directory.")
     print(
-        f"    Inside \"\config.DATASET_FOLDER_PATH\" folder, create as many folders as categories\n"
+        f"\n   Inside \"\config.DATASET_FOLDER_PATH\" folder, create as many folders as categories\n"
         "    you'd like to train your model with.\n"
         "    And inside those folders put the samples. You can add features in the name\n"
         "    separated by '_'\n")

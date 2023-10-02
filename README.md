@@ -48,6 +48,8 @@ Start with the framework tool:
 python3 start.py
 ```
 
+![plot](./04_SOTA_exploration/imgs/welcome.png|alt=octocat)
+
 Get data:
 1.MOSEI     #CLONE THE REPO AND PUT INTO THE DATASETS DIRECTORY
 

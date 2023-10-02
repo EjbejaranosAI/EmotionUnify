@@ -1,3 +1,4 @@
 01_Dataset_generation/dataset
 01_Dataset_generation/preprocessing_files/bad
+01_Dataset_generation/videos_features.csv
 04_SOTA_exploration/data_processing

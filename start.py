@@ -35,7 +35,7 @@ def execute_option(option):
 
 def main():
     install_dependencies()
-    print("==== Menú de Opciones ====")
+    print("===================== Menú de Opciones =====================")
     print("1. Ejecutar 01_Dataset_generation")
     print("2. Ejecutar 02_Model_Training")
     print("3. Ejecutar 03_Inference_Engine")

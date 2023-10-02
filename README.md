@@ -47,8 +47,9 @@ Start with the framework tool:
 ```bash
 python3 start.py
 ```
+![image](https://github.com/EjbejaranosAI/EmotionUnify/assets/91475734/48cd187d-ef73-46a3-8dff-cdefba7e2ac5)
 
-![plot](./04_SOTA_exploration/imgs/welcome.png|alt=octocat)
+
 
 Get data:
 1.MOSEI     #CLONE THE REPO AND PUT INTO THE DATASETS DIRECTORY

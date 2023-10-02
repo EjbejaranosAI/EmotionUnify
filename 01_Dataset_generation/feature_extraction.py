@@ -20,7 +20,8 @@ class FeatureExtraction:
                     print(os.path.join(self.directory_path, folder, filename))
 
                     transcription = AudioTranscriber().transcribe_mp3(os.path.join(self.directory_path,folder,filename))
-                    video_features.append([filename, transcription, folder]+file_parts[:-1])
+                    if transcription is not None and transcription != "-":
+                        video_features.append([filename, transcription, folder]+file_parts[:-1])
 
         # Escribir los datos en un archivo CSV
         with open(output_csv, 'w', newline='') as csvfile:

@@ -39,12 +39,13 @@ Welcome to the "Lernmi Multimodal Sentiment Analysis Toolkit" repository – you
 
 
 
-## Installation
+## Installation and execution of the framework menu
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+
+Start with the framework tool:
 
 ```bash
-pip install -r requirenments.txt
+python3 start.py
 ```
 
 Get data:

@@ -31,7 +31,7 @@ class FeatureExtraction:
 
 # Ejemplo de uso:
 if __name__ == "__main__":
-    directory_path = './preprocessing_files/'  # Reemplaza con la ruta de tu directorio
+    directory_path = 'preprocessed_dataset/'  # Reemplaza con la ruta de tu directorio
     output_csv = 'mp3_data.csv'  # Nombre del archivo CSV de salida
 
     feature_extractor = FeatureExtraction(directory_path)

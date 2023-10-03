@@ -21,7 +21,6 @@ class Preprocess:
                     shutil.rmtree(destination_path)
                 else:
                     print("Skipped the creation of the folder environment.")
-                    return
 
         folders = [f for f in os.listdir(source_path) if os.path.isdir(os.path.join(source_path, f))]
 

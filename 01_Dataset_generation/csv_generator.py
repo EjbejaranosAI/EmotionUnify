@@ -3,7 +3,11 @@ import csv
 from transcriber import AudioTranscriber
 from audio import Audio
 
-class FeatureExtraction:
+
+
+
+
+class CsvGenerator:
     def __init__(self, directory_path):
         self.directory_path = directory_path
 
@@ -16,14 +20,18 @@ class FeatureExtraction:
                 continue
             for filename in os.listdir(os.path.join(self.directory_path, folder)):
                 full_file_path = os.path.join(self.directory_path, folder, filename)
-
+                features = []
                 if filename.endswith(".wav"):
                     # Parsear el nombre del archivo para extraer información
                     audio = Audio(full_file_path)
+                    features = audio.get_features()
 
-                    transcription = AudioTranscriber().transcribe(audio)
-                    if transcription is not None and transcription != "-":
-                        video_features.append([filename, transcription, folder] + audio.get_features())
+                elif filename.endswith(".mp4"):
+                    video = Video(full_file_path)
+                    features = video.get_features()
+
+                if features[0] is not None and features[0] != "-":
+                    video_features.append([filename, folder] + features)
 
         # Escribir los datos en un archivo CSV
         with open(output_csv, 'w', newline='') as csvfile:
@@ -37,5 +45,5 @@ if __name__ == "__main__":
     directory_path = 'preprocessed_dataset/'  # Reemplaza con la ruta de tu directorio
     output_csv = 'mp3_data.csv'  # Nombre del archivo CSV de salida
 
-    feature_extractor = FeatureExtraction(directory_path)
+    feature_extractor = CsvGenerator(directory_path)
     feature_extractor.process_directory(output_csv)

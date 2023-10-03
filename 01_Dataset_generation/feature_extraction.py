@@ -2,6 +2,7 @@ import os
 import csv
 from transcriber import AudioTranscriber
 
+
 class FeatureExtraction:
     def __init__(self, directory_path):
         self.directory_path = directory_path
@@ -16,18 +17,20 @@ class FeatureExtraction:
 
                 if filename.endswith(".wav"):
                     # Parsear el nombre del archivo para extraer información
-                    file_parts = os.path.splitext(filename)[0].replace(".mp3","").split("_")
+                    file_parts = os.path.splitext(filename)[0].replace(".mp3", "").split("_")
                     print(os.path.join(self.directory_path, folder, filename))
 
-                    transcription = AudioTranscriber().transcribe_mp3(os.path.join(self.directory_path,folder,filename))
+                    transcription = AudioTranscriber().transcribe_mp3(
+                        os.path.join(self.directory_path, folder, filename))
                     if transcription is not None and transcription != "-":
-                        video_features.append([filename, transcription, folder]+file_parts[:-1])
+                        video_features.append([filename, transcription, folder] + file_parts[:-1])
 
         # Escribir los datos en un archivo CSV
         with open(output_csv, 'w', newline='') as csvfile:
             csv_writer = csv.writer(csvfile)
-            csv_writer.writerow(['File', 'Transcription', 'Classification', 'Sentiment','Emotion'])
+            csv_writer.writerow(['File', 'Transcription', 'Classification', 'Sentiment', 'Emotion'])
             csv_writer.writerows(video_features)
+
 
 # Ejemplo de uso:
 if __name__ == "__main__":

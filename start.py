@@ -17,30 +17,29 @@ def install_dependencies():
     os.system("pip install -q -r ./01_Dataset_generation/requirements.txt")
 
 
-
 def execute_option(option):
     python_executable = "python3" if sys.version_info >= (3, 0) else "python"
-    
+
     if option == "1":
-        print(f"Ejecutando 01_Dataset_generation con {python_executable}...")
+        print(f"Executing 01_Dataset_generation with {python_executable}... 🚀")
         os.system(f"{python_executable} ./01_Dataset_generation/main.py")
     elif option == "2":
-        print(f"Ejecutando 02_Model_Training con {python_executable}...")
+        print(f"Executing 02_Model_Training with {python_executable}... 🏋️")
         os.system(f"{python_executable} ./02_Model_Training/main.py")
     elif option == "3":
-        print(f"Ejecutando 03_Inference_Engine con {python_executable}...")
+        print(f"Executing 03_Inference_Engine with {python_executable}... 🔮")
         os.system(f"{python_executable} ./03_Inference_Engine/main.py")
     else:
-        print("Opción no válida. Por favor, seleccione una opción válida.")
+        print("Invalid option. Please select a valid option. ❌")
 
 def main():
     install_dependencies()
-    print("===================== Menú de Opciones =====================")
-    print("1. Ejecutar 01_Dataset_generation")
-    print("2. Ejecutar 02_Model_Training")
-    print("3. Ejecutar 03_Inference_Engine")
+    print("===================== Options Menu =====================")
+    print("📊 1. Execute 01_Dataset_generation")
+    print("🧠 2. Execute 02_Model_Training")
+    print("🔍 3. Execute 03_Inference_Engine")
 
-    option = input("Seleccione una opción (1/2/3): ")
+    option = input("Select an option (1/2/3): ")
     execute_option(option)
 
 if __name__ == "__main__":

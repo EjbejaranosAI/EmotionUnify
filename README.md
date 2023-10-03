@@ -18,19 +18,15 @@ Welcome to the "Lernmi Multimodal Sentiment Analysis Toolkit" repository – you
 
 * [Índice](#índice)
 
-* [Installation](#Installation)
+* [Installation and execution of the framework menu](#Installation and execution of the framework menu)
 
-* [Notebooks](#Notbooks)
+* [1.Dataset_generation](#1.Dataset_generation)
 
-* [Características de la aplicación y demostración](#Características-de-la-aplicación-y-demostración)
+* [2.Model_Training](#2.Model_Training)
 
-* [Acceso al proyecto](#acceso-proyecto)
+* [3.Inference_Engine](#3.Inference_Engine)
 
-* [Tecnologías utilizadas](#tecnologías-utilizadas)
-
-* [Personas Contribuyentes](#personas-contribuyentes)
-
-* [Personas-Desarrolladores del Proyecto](#personas-desarrolladores)
+* [4.SOTA_exploration](#4.SOTA_exploration)
 
 * [Licencia](#licencia)
 
@@ -50,37 +46,25 @@ python3 start.py
 ![image](https://github.com/EjbejaranosAI/EmotionUnify/assets/91475734/48cd187d-ef73-46a3-8dff-cdefba7e2ac5)
 
 
+## 1.Dataset_generation
+### 1.1 Custom dataset
+### 1.2 Dataset adapters:   
+- Meld 
 
-Get data:
-1.MOSEI     #CLONE THE REPO AND PUT INTO THE DATASETS DIRECTORY
+## 2.Model_Training
+### Feature extraction
+### Training model
 
-```BASH
-git clone https://github.com/CMU-MultiComp-Lab/CMU-MultimodalSDK.git && mv CMU-MultimodalSDK src/datasets/
+## 3.Inference_Engine
+### Inference by video
+### Inference by dataset
 
-```
-
-1.Meld data:
-```bash
-wget http://web.eecs.umich.edu/~mihalcea/downloads/MELD.Raw.tar.gz
-```
-
-## Baseline
-
-```python
-import foobar
-
-# returns 'words'
-foobar.pluralize('word')
-
-# returns 'geese'
-foobar.pluralize('goose')
-
-# returns 'phenomenon'
-foobar.singularize('phenomena')
-```
-## 🐙 Notebooks 
+## 4.SOTA_exploration
+### BLSTM
+### 🐙 Notebooks 
 - Exploration datasets
 - Baseline
+### Uninmse
 
 ## Contributing
 

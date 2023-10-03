@@ -1,7 +1,7 @@
 import os
 import csv
 from transcriber import AudioTranscriber
-
+from audio import Audio
 
 class FeatureExtraction:
     def __init__(self, directory_path):
@@ -12,18 +12,18 @@ class FeatureExtraction:
 
         # Iterar sobre los archivos y directorios en el directorio principal
         for folder in os.listdir(self.directory_path):
-            if folder == ".DS_Store": continue
+            if folder == ".DS_Store":
+                continue
             for filename in os.listdir(os.path.join(self.directory_path, folder)):
+                full_file_path = os.path.join(self.directory_path, folder, filename)
 
                 if filename.endswith(".wav"):
                     # Parsear el nombre del archivo para extraer información
-                    file_parts = os.path.splitext(filename)[0].replace(".mp3", "").split("_")
-                    print(os.path.join(self.directory_path, folder, filename))
+                    audio = Audio(full_file_path)
 
-                    transcription = AudioTranscriber().transcribe_mp3(
-                        os.path.join(self.directory_path, folder, filename))
+                    transcription = AudioTranscriber().transcribe(audio)
                     if transcription is not None and transcription != "-":
-                        video_features.append([filename, transcription, folder] + file_parts[:-1])
+                        video_features.append([filename, transcription, folder] + audio.get_features())
 
         # Escribir los datos en un archivo CSV
         with open(output_csv, 'w', newline='') as csvfile:

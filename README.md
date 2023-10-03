@@ -8,6 +8,10 @@
 </h4>
 
 
+# 🎯 EmoDataGen 🎯
+
+Your all-in-one solution for generating and exploring multimodal datasets, designed to empower research in sentiment analysis.
+
 
 # 🔥 EmotionUnify 🔥
 
@@ -18,7 +22,7 @@ Welcome to the "Lernmi Multimodal Sentiment Analysis Toolkit" repository – you
 
 * [Índice](#índice)
 
-* [Installation](#Installation and execution of the framework menu)
+* [Installation](#Installation)
 
 * [1.Dataset_generation](#1.Dataset_generation)
 
@@ -35,8 +39,7 @@ Welcome to the "Lernmi Multimodal Sentiment Analysis Toolkit" repository – you
 
 
 
-## Installation and execution of the framework menu
-
+## Installation 
 
 Start with the framework tool:
 

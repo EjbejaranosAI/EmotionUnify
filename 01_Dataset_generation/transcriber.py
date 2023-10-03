@@ -5,6 +5,7 @@ from pydub import AudioSegment
 import time
 
 class AudioTranscriber:
+
     def __init__(self):
         self.recognizer = sr.Recognizer()
 
@@ -20,9 +21,6 @@ class AudioTranscriber:
         video_clip.audio.write_audiofile(audio_temp_path, codec="pcm_s16le")
         os.rename(audio_temp_path, wav_path)
         return wav_path
-
-    def transcribe_video(self, video_path):
-        video_path = self.convert_video_to_wav(video_path)
 
     def transcribe_audio(self, audio_path):
         if audio_path.endswith(".mp3"):

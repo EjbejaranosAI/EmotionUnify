@@ -2,7 +2,7 @@ SKIP_EXPLANATION = False
 SKIP_QUESTIONS = False  # SKIP AT YOUR OWN RISK
 
 DATASET_FOLDER_PATH = "dataset"
-DESTINATION_FOLDER_PATH = "preprocessing_files"
+DESTINATION_FOLDER_PATH = "preprocessed_dataset"
 
 #VIDEO
 TARGET_VIDEO_FPS = 3
@@ -19,6 +19,6 @@ TARGET_AUDIO_BITRATE = "128k"
 # -trans: me fue muy bien (positive)
 # -img: :) (positive)
 
-#bad :
+#video_splits :
 # -trans: me fue muy bien (negative)
 # -img: :( (negative)

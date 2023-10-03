@@ -18,7 +18,7 @@ Welcome to the "Lernmi Multimodal Sentiment Analysis Toolkit" repository – you
 
 * [Índice](#índice)
 
-* [Installation and execution of the framework menu](#Installation and execution of the framework menu)
+* [Installation](#Installation and execution of the framework menu)
 
 * [1.Dataset_generation](#1.Dataset_generation)
 

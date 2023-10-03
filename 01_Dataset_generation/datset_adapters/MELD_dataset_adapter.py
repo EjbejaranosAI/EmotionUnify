@@ -197,8 +197,8 @@ def execute_option(option):
     if option == "1":
         print_title("Downloading MELD Dataset")
         download_meld_dataset()  # Uncomment this if you want to download the dataset
-        print_title("Adapting MELD Dataset")
-        adapt_meld_dataset()
+        #print_title("Adapting MELD Dataset")
+        #adapt_meld_dataset()
 
     elif option == "2":
         print_title("Adapting MELD Dataset")

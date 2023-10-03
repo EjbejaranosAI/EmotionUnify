@@ -9,7 +9,8 @@ import subprocess
 import tarfile
 import shutil
 
-
+#TODO: borrar cuando se importe el config y se recupere de ahi la ruta
+OUTPUT_DIRECTORY = "../preprocessed_dataset"
 # Function for printing a formatted title
 def print_title(title):
     border = '═' * (len(title) + 2)
@@ -91,7 +92,7 @@ class VideoProcessor:
         self.video_directory = video_directory
         self.join_sets = join_sets
         self.dataset_type = dataset_type if not join_sets else 'joined'
-        self.output_directory = os.path.join(output_directory, self.dataset_type)
+        self.output_directory = output_directory
 
         if os.path.exists(self.output_directory):
             shutil.rmtree(self.output_directory)
@@ -164,7 +165,8 @@ def adapt_meld_dataset():
     csv_paths = ['./MELD/dev_sent_emo.csv', './MELD/train_sent_emo.csv', './MELD/test_sent_emo.csv']
     video_directories = ['./MELD/dev_splits_complete', './MELD/train_splits', './MELD/output_repeated_splits_test']
     dataset_types = ['dev', 'train', 'test']
-    output_directory = './videos_procesados'
+    #TODO: cambiar el directorio cogiendolo del config
+    output_directory =  OUTPUT_DIRECTORY
 
     print("Classification Types:")
     print("1. Emotion")
@@ -206,7 +208,7 @@ def execute_option(option):
         print_title("Returning to Previous Option")
 
         # Delete the videos_procesados directory
-        output_directory = './videos_procesados'
+        output_directory = OUTPUT_DIRECTORY
         if os.path.exists(output_directory):
             shutil.rmtree(output_directory)
         print(f"✅ Deleted directory: {output_directory}")

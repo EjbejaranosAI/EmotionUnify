@@ -8,6 +8,10 @@
 </h4>
 
 
+# 🎯 EmoDataGen 🎯
+
+Your all-in-one solution for generating and exploring multimodal datasets, designed to empower research in sentiment analysis.
+
 
 # 🔥 EmotionUnify 🔥
 

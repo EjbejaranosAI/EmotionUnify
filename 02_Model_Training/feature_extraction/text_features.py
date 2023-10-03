@@ -92,12 +92,12 @@ if __name__ == "__main__":
     X_train, y_train = feature_extractor.extract_bert_features(df_processed_train)
 
     print("💾 Saving Extracted Features... 💾")
-    np.save('./train_text_features.npy', X_train)
+    np.save('./text_features/train_text_features.npy', X_train)
 
     print("🎉 Feature Extraction Complete! 🎉")
 
     print("🔍 Inspecting the saved .npy file... 🔍")
-    loaded_X_train = np.load('./train_text_features.npy')
+    loaded_X_train = np.load('./text_features/train_text_features.npy')
     print(f"📊 Shape: {loaded_X_train.shape}")
     print(f"🔢 Data Type: {loaded_X_train.dtype}")
     print(f"📈 Min Value: {np.min(loaded_X_train)}")

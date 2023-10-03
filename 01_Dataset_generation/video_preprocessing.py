@@ -36,7 +36,11 @@ class VideoPreprocessing:
             subclip_filename = f"{base_filename}_{i}.mp4"
             subclip_path = os.path.join(output_dir, subclip_filename)
 
-            subclip = clip.subclip(start_time, end_time).set_audio(None)
+            if config.REMOVE_AUDIO_FROM_PREPROCESSED_VIDEOS:
+                subclip = clip.subclip(start_time, end_time).set_audio(None)
+            else:
+                subclip = clip.subclip(start_time, end_time)
+
 
             subclip.write_videofile(subclip_path, codec="libx264")
 
@@ -47,7 +51,7 @@ class VideoPreprocessing:
 
         output_dir = os.path.dirname(output_path)
         audio_preprocessing.save_audio_intervals(intervals, output_dir)
-        sr = librosa.get_samplerate(self.downsampled_audio_path)
+        #sr = librosa.get_samplerate(self.downsampled_audio_path)
 
         intervals_in_seconds = remove_too_small_intervals(intervals/22000)
         self.split_video(intervals_in_seconds, output_dir)
@@ -71,7 +75,10 @@ class VideoPreprocessing:
         target_resolution = (new_width, new_height)
 
         video = video.resize(target_resolution)
-        video = video.set_audio(None)  # Desactivar el audio
+
+        if config.REMOVE_AUDIO_FROM_PREPROCESSED_VIDEOS:
+            audio = None  # Desactivar el audio
+        video = video.set_audio(audio)  # Desactivar el audio
         video = video.set_fps(target_fps)
         video.write_videofile(output_path, codec="libx264", audio=False, logger=None)
         self.downsampled_video_path = output_path

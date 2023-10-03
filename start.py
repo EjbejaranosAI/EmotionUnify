@@ -33,7 +33,7 @@ def execute_option(option):
         print("Invalid option. Please select a valid option. ❌")
 
 def main():
-    install_dependencies()
+    #install_dependencies()
     print("===================== Options Menu =====================")
     print("📊 1. Execute 01_Dataset_generation")
     print("🧠 2. Execute 02_Model_Training")

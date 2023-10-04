@@ -66,6 +66,7 @@ class VideoPreprocessing:
         # Extraer el audio y guardar el archivo mp3
         audio = video.audio
         audio_path = output_path.replace(".mp4", ".mp3")
+
         self.downsampled_audio_path = audio_path
         audio.write_audiofile(audio_path, fps=audio_samplerate, bitrate=audio_bitrate, logger=None)
 
@@ -78,9 +79,10 @@ class VideoPreprocessing:
 
         if config.REMOVE_AUDIO_FROM_PREPROCESSED_VIDEOS:
             audio = None  # Desactivar el audio
-        video = video.set_audio(audio)  # Desactivar el audio
+        video = video.set_audio(None)  # Desactivar el audio
         video = video.set_fps(target_fps)
         video.write_videofile(output_path, codec="libx264", audio=False, logger=None)
+
         self.downsampled_video_path = output_path
 
     def delete_temp_files(self):

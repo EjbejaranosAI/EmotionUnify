@@ -51,8 +51,10 @@ class AudioTranscriber:
     def transcribe(self, path):
         file_type = path[-3:].lower()
         if file_type in ['mp3', 'wav']:
+            print("["*10, "Ha legado a trasncribe COMO MP3")
             return self.transcribe_audio(path)
         elif file_type in ['mp4']:
+            print("["*10, "Ha legado a trasncribe COMO MP4")
             return self.transcribe_video(path)
         else:
             return "Formato de archivo no compatible."
@@ -60,4 +62,5 @@ class AudioTranscriber:
     #TODO: si lo vemos necesario implementar
     def transcribe_video(self, video_path):
         print("ERROR: No esta implementada la transcripción de video")
+        return "ESTO AL MENOS LLEGA"
 

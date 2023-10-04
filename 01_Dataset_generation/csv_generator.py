@@ -2,6 +2,7 @@ import os
 import csv
 from transcriber import AudioTranscriber
 from audio import Audio
+from video import Video
 
 
 
@@ -25,12 +26,14 @@ class CsvGenerator:
                     # Parsear el nombre del archivo para extraer información
                     audio = Audio(full_file_path)
                     features = audio.get_features()
+                    #print(80*"*")
+                    #print("----->", features)
 
                 elif filename.endswith(".mp4"):
                     video = Video(full_file_path)
                     features = video.get_features()
 
-                if features[0] is not None and features[0] != "-":
+                if (features is not None):
                     video_features.append([filename, folder] + features)
 
         # Escribir los datos en un archivo CSV
@@ -38,12 +41,3 @@ class CsvGenerator:
             csv_writer = csv.writer(csvfile)
             csv_writer.writerow(['File', 'Transcription', 'Classification', 'Sentiment', 'Emotion'])
             csv_writer.writerows(video_features)
-
-
-# Ejemplo de uso:
-if __name__ == "__main__":
-    directory_path = 'preprocessed_dataset/'  # Reemplaza con la ruta de tu directorio
-    output_csv = 'mp3_data.csv'  # Nombre del archivo CSV de salida
-
-    feature_extractor = CsvGenerator(directory_path)
-    feature_extractor.process_directory(output_csv)

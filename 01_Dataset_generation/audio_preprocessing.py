@@ -29,7 +29,7 @@ class AudioPreprocessing:
         for i, (start, end) in enumerate(intervals):
             if (end - start)/22000 >= config.MIN_VIDEO_CHUNK_TIME:
                 audio_segment = y[start:end]
-                output_path = os.path.join(output_dir, f'{audio_name}_{i}.wav')
+                output_path = os.path.join(output_dir, f'{audio_name[:-4]}_{i}.wav')
                 print("+++++", output_path)
                 sf.write(output_path, audio_segment, sr)
 

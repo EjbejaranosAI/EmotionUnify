@@ -44,7 +44,7 @@ class Preprocess:
                 for file in files:
                     file_path = os.path.join(folder_path, file)
                     destination_file_path = os.path.join(destination_folder_path, file)
-
+                    print("@@@@@-----",destination_file_path)
                     VideoPreprocessing(file_path).execute(destination_file_path)
 
                 pbar.update(1)

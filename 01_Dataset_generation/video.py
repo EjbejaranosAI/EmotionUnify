@@ -1,6 +1,4 @@
-import os
 from transcriber import AudioTranscriber
-import pandas as pd
 from media_file import MediaFile
 import config
 
@@ -23,17 +21,19 @@ class Video(MediaFile):
         print("@@@@", self.file_source)
         if self.file_source != "custom":
             for csv_path in config.SOURCES_CSV_PATHS[self.file_source]:
-                print("@@@", csv_path)
+
                 transcription = self.get_transcription_from_source(csv_path)
         else:
             transcription = AudioTranscriber().transcribe(self.file_path)
+        print("[" * 10, "Trans: ", transcription)
         return transcription
 
     def get_features(self):
-        features = []
-        features.append(self.get_transcription())
-        if self.file_source == "custom":
-            features.append(self.get_name_features())
+        features = None
+        if self.file_source != "custom":
+            features = [self.get_transcription()]
+        print("["*10, "features: ", features)
+
         return features
 
 

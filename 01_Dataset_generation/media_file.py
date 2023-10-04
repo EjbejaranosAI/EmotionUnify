@@ -13,7 +13,7 @@ class MediaFile:
     def determine_file_source(self):
         if "MELD" in self.file_path:
             return "meld"
-        return "meld"
+        return "custom"
 
     def get_file_type(self):
         return self.file_path[-3:]
@@ -52,6 +52,7 @@ class MediaFile:
                 transcription = self.get_transcription_from_source(csv_path)
         else:
             transcription = AudioTranscriber().transcribe(self.file_path)
+            print("["*10,"Trans: ", transcription)
         return transcription
 
     def __str__(self):

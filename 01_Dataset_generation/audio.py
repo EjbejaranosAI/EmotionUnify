@@ -16,12 +16,13 @@ class Audio(MediaFile):
         return self.file_type in valid_formats
 
     def get_features(self):
-        features = []
-        features.append(self.get_transcription())
+        features = [self.get_transcription()]
         if self.file_source == "custom":
-            features.append(self.get_name_features())
+            features += self.get_name_features()
+        if len(features) <= 0:
+            return None
         return features
 
-a = Audio("dia49_utt4.mp4")
+#a = Audio("dia49_utt4.mp4")
 
-print(a.get_transcription())
+#print(a.get_transcription())

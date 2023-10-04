@@ -9,8 +9,9 @@ import subprocess
 import tarfile
 import shutil
 
-#TODO: borrar cuando se importe el config y se recupere de ahi la ruta
 OUTPUT_DIRECTORY = "../preprocessed_dataset"
+OUTPUT_TRAIN_DIR = "../dataset"
+
 # Function for printing a formatted title
 def print_title(title):
     border = '═' * (len(title) + 2)
@@ -94,10 +95,6 @@ class VideoProcessor:
         self.dataset_type = dataset_type if not join_sets else 'joined'
         self.output_directory = output_directory
 
-        if os.path.exists(self.output_directory):
-            shutil.rmtree(self.output_directory)
-        os.makedirs(self.output_directory)
-
     def generate_new_filename(self, video_id, dialogue_id, utterance_id):
         return f"{video_id}_{dialogue_id}_{utterance_id}.mp4"
 
@@ -140,6 +137,7 @@ class VideoProcessor:
 
             if join_datasets:
                 destination_folder = os.path.join(self.output_directory, "joined", category)
+
             else:
                 destination_folder = os.path.join(self.output_directory, self.dataset_type, category)
 
@@ -165,20 +163,25 @@ def adapt_meld_dataset():
     csv_paths = ['./MELD/dev_sent_emo.csv', './MELD/train_sent_emo.csv', './MELD/test_sent_emo.csv']
     video_directories = ['./MELD/dev_splits_complete', './MELD/train_splits', './MELD/output_repeated_splits_test']
     dataset_types = ['dev', 'train', 'test']
-    #TODO: cambiar el directorio cogiendolo del config
-    output_directory =  OUTPUT_DIRECTORY
+    output_directory = OUTPUT_DIRECTORY
 
     print("Classification Types:")
     print("1. Emotion")
     print("2. Sentiment")
     choice = input("Choose classification type (1/2): ")
-    classification_type = "Emotion" if choice == "1" else "Sentiment"  # Changed selection method
+    classification_type = "Emotion" if choice == "1" else "Sentiment"
 
     for category in ["neutral", "joy", "sadness", "anger", "surprise", "disgust", "fear", "positive", "negative"]:
         global_summary[category] = {'train': 0, 'dev': 0, 'test': 0, 'total': 0}
 
     join_choice = input("Do you want to join train, dev, and test sets? (y/n): ")
     join_sets = True if join_choice.lower() == 'y' else False
+
+    # Moved the directory deletion logic here
+    if os.path.exists(output_directory):
+        if join_sets:  # Only delete if join_sets is True
+            shutil.rmtree(output_directory)
+    os.makedirs(output_directory, exist_ok=True)
 
     # Add 'joined' key to global_summary if datasets are to be joined
     if join_sets:
@@ -189,8 +192,25 @@ def adapt_meld_dataset():
         print(f"\nProcessing {csv_path} and videos from {video_directory}")
         processor = VideoProcessor(csv_path, video_directory, output_directory, dataset_type, join_sets)
         processor.process_videos(classification_type, global_summary)
+
     print_global_summary(global_summary)
 
+    if not join_sets:
+        train_dir_source = os.path.join(OUTPUT_DIRECTORY, 'train')
+
+        # Check if the source directory exists
+        if os.path.exists(train_dir_source):
+            # Create destination directory if it doesn't exist
+            if not os.path.exists(OUTPUT_TRAIN_DIR):
+                os.makedirs(OUTPUT_TRAIN_DIR)
+            for subfolder in os.listdir(train_dir_source):
+                subfolder_source = os.path.join(train_dir_source, subfolder)
+                subfolder_destination = os.path.join(OUTPUT_TRAIN_DIR, subfolder)
+                if os.path.exists(subfolder_destination):
+                    shutil.rmtree(subfolder_destination)
+                # Move the subfolder
+                shutil.move(subfolder_source, subfolder_destination)
+                print(f"✅ Moved {subfolder} to {OUTPUT_TRAIN_DIR}")
 
 
 def execute_option(option):
@@ -205,7 +225,7 @@ def execute_option(option):
         adapt_meld_dataset()  # Call the function to adapt the dataset
 
     elif option == "3":
-        print_title("Returning to Previous Option")
+        print_title("Clean directories")
 
         # Delete the videos_procesados directory
         output_directory = OUTPUT_DIRECTORY

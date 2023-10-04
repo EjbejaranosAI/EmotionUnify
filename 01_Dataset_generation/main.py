@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from tabulate import tabulate
-from feature_extraction import FeatureExtraction
+from csv_generator import CsvGenerator
 import config
 from preprocessing import Preprocess
 
@@ -97,7 +97,7 @@ def main():
 
     if dataset_is_correct:
         Preprocess(config.DATASET_FOLDER_PATH).execute()
-        FeatureExtraction(config.DESTINATION_FOLDER_PATH).execute()
+        CsvGenerator(config.DESTINATION_FOLDER_PATH).execute()
 
 
 if __name__ == '__main__':

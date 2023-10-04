@@ -15,6 +15,9 @@ class AudioTranscriber:
         audio.export(wav_path, format="wav")
         return wav_path
 
+    def get_transcription_from_source(self):
+        pass
+
     def convert_video_to_wav(video_path, wav_path):
         video_clip = VideoFileClip(video_path)
         audio_temp_path = "temp_audio.wav"
@@ -45,12 +48,16 @@ class AudioTranscriber:
         os.remove(wav_path)
         return transcription
 
-    def transcribe_file(self,media_path):
-        if media_path.lower().endswith(('.mp3', '.wav')):
-            audio_path = media_path
-            return self.transcribe_audio(audio_path)
-        elif media_path.lower().endswith(('.mp4', '.avi', '.mov')):
-            video_path = media_path
-            return self.transcribe_video(video_path)
+    def transcribe(self, path):
+        file_type = path[-3:].lower()
+        if file_type in ['mp3', 'wav']:
+            return self.transcribe_audio(path)
+        elif file_type in ['mp4']:
+            return self.transcribe_video(path)
         else:
             return "Formato de archivo no compatible."
+
+    #TODO: si lo vemos necesario implementar
+    def transcribe_video(self, video_path):
+        print("ERROR: No esta implementada la transcripción de video")
+

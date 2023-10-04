@@ -98,7 +98,7 @@ class EarlyFusionLayer(nn.Module):
 if __name__ == "__main__":
     feature_extractor = VisionFeatureExtractor("Emotion")
     video_folder_path = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_splits_complete"
-    video_path_csv = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_sent_emo.csv""
+    video_path_csv = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_sent_emo.csv"
     df = pd.read_csv(video_path_csv)
 
     extracted_features = feature_extractor.extract_features_from_folder(video_folder_path, df)

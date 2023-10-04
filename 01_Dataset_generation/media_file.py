@@ -23,16 +23,15 @@ class MediaFile:
 
     # TODO: HACER ADAPTADOR DE CADA CSV SEGUN SOURC
     def get_transcription_from_source(self, path):
-        print("BIEN DIREGIDA")
+
         try:
             file_ids = self.get_file_name()
-            print("HASTA AQUI LLEGA", file_ids)
+
             df = pd.read_csv(path)
             #print(df)
             # Busca una fila donde ambas columnas 'Columna1' y 'Columna2' sean iguales a los valores de file_ids
             matching_row = df.loc[(df['Utterance_ID'] == file_ids[1]) & (df['Dialogue_ID'] == file_ids[0])]
-            print(f"{matching_row}")
-            print("HASTA AQUI LLEGA2")
+
             if not matching_row.empty:
                 transcription = matching_row[
                     'Utterance']  # Reemplaza 'Utterance' con el nombre real de tu columna de transcripción
@@ -42,7 +41,10 @@ class MediaFile:
             return None
 
     def get_name_features(self):
-        features = os.path.splitext(self.file_path)[0][-3:].split("_")
+        print("Entrando a la casita de get name features")
+        file_name = os.path.basename(self.file_path)
+        features = file_name[:-4].split("_")[:-1]
+        print(f"FEATURES DE MIS HUEVOS: {features}")
         return features
 
 

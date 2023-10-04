@@ -4,10 +4,6 @@ from transcriber import AudioTranscriber
 from audio import Audio
 from video import Video
 
-
-
-
-
 class CsvGenerator:
     def __init__(self, directory_path):
         self.directory_path = directory_path
@@ -33,11 +29,11 @@ class CsvGenerator:
                     video = Video(full_file_path)
                     features = video.get_features()
 
-                if (features is not None):
-                    video_features.append([filename, folder] + features)
+                if features is not None and len(features) >= 1 and features[0] is not None:
+                    video_features.append([filename[:-4], folder] + features)
 
         # Escribir los datos en un archivo CSV
         with open(output_csv, 'w', newline='') as csvfile:
             csv_writer = csv.writer(csvfile)
-            csv_writer.writerow(['File', 'Transcription', 'Classification', 'Sentiment', 'Emotion'])
+            csv_writer.writerow(['File', 'Classification', 'Transcription'])
             csv_writer.writerows(video_features)

@@ -1,9 +1,9 @@
 import os
-import librosa
 import moviepy.editor as mp
 import config
 from audio_preprocessing import AudioPreprocessing
-
+from audio import Audio
+from video import Video
 
 def remove_too_small_intervals(intervals):
     filtered_intervals = []
@@ -46,16 +46,21 @@ class VideoPreprocessing:
 
 
     def split_video_in_talking_intervals(self, output_path):
-        audio_preprocessing = AudioPreprocessing(self.downsampled_audio_path)
-        intervals = audio_preprocessing.split_audio_by_silence()
+        audio = Audio(self.downsampled_audio_path)
+        if audio.file_source != "meld":
 
-        output_dir = os.path.dirname(output_path)
-        audio_preprocessing.save_audio_intervals(intervals, output_dir)
-        #sr = librosa.get_samplerate(self.downsampled_audio_path)
+            audio_preprocessing = AudioPreprocessing(self.downsampled_audio_path)
+            intervals = audio_preprocessing.split_audio_by_silence()
 
-        intervals_in_seconds = remove_too_small_intervals(intervals/22000)
-        self.split_video(intervals_in_seconds, output_dir)
+            output_dir = os.path.dirname(output_path)
+            audio_preprocessing.save_audio_intervals(intervals, output_dir)
+            # TODO: RESVISAR ESTA PARTE DEL SR
+            #sr = librosa.get_samplerate(self.downsampled_audio_path)
 
+            intervals_in_seconds = remove_too_small_intervals(intervals/22000)
+            self.split_video(intervals_in_seconds, output_dir)
+        else:
+            print(f"Skipping split audio cause its from {audio.file_source}")
 
     def downsample_video(self, output_path, target_fps=config.TARGET_VIDEO_FPS,
                          resolution_scale=config.TARGET_VIDEO_RESOLUTION_SCALE,
@@ -92,4 +97,5 @@ class VideoPreprocessing:
     def execute(self, destination_file_path):
         self.downsample_video(destination_file_path)
         self.split_video_in_talking_intervals(destination_file_path)
-        self.delete_temp_files()
+        if Video(self.video_path).file_source == "custom":
+            self.delete_temp_files()

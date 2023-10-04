@@ -18,25 +18,20 @@ class Video(MediaFile):
 
 #TODO: HACER ADAPTADOR DE CADA CSV SEGUN SOURCE
     def get_transcription(self):
-        print("@@@@", self.file_source)
         if self.file_source != "custom":
-            for csv_path in config.SOURCES_CSV_PATHS[self.file_source]:
-
-                transcription = self.get_transcription_from_source(csv_path)
+            transcription = self.get_transcription_from_source()
         else:
             transcription = AudioTranscriber().transcribe(self.file_path)
-        print("[" * 10, "Trans: ", transcription)
         return transcription
 
     def get_features(self):
         features = None
         if self.file_source != "custom":
             features = [self.get_transcription()]
-        print("["*10, "features: ", features)
 
         return features
 
 
-v = Video("./datset_adapters/MELD/output_repeated_splits_test/._dia0_utt0.mp4")
+#v = Video("./datset_adapters/MELD/output_repeated_splits_test/dia0_utt0.mp4")
 
-print(v.get_transcription())
+#rint(v.get_transcription())

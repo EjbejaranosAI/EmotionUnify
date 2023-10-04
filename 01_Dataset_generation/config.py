@@ -17,8 +17,6 @@ TARGET_AUDIO_BITRATE = "128k"
 # DATASETS
 SOURCES_CSV_PATHS = {
     "meld": [
-        "./datset_adapters/MELD/dev_sent_emo.csv",
-        "./datset_adapters/MELD/test_sent_emo.csv",
         "./datset_adapters/MELD/train_sent_emo.csv"
     ]
 }

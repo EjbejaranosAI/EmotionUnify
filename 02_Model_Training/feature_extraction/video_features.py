@@ -1,32 +1,39 @@
-import configparser
-import cv2
 import os
 import numpy as np
 import torch
 import torch.nn as nn
-from torchvision.models import resnet18, vgg16
+from torchvision.models import resnet18, vgg16  # Asegúrate de importar los modelos correctamente
+import cv2
 import timm
 from tqdm import tqdm
 import pandas as pd
 
 class VisionFeatureExtractor:
-    def __init__(self, classification_type="Emotion"):
-        config = configparser.ConfigParser()
-        config.read('../config.ini')
-        self.input_dim = config.getint('VisionFeatureExtraction', 'input_dim')
-        self.output_dim = config.getint('VisionFeatureExtraction', 'output_dim')
-
+    def __init__(self, output_dim=256, classification_type="Sentiment"):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.models = self.initialize_models()
-        self.early_fusion_layer = EarlyFusionLayer(input_dim=self.input_dim, output_dim=self.output_dim).to(self.device)
+        self.model = self.initialize_model()
+        self.output_dim = output_dim
+        self.early_fusion_layer = EarlyFusionLayer(input_dim=self.model.feature_dim, output_dim=self.output_dim).to(self.device)
         self.classification_type = classification_type
 
+    def initialize_model(self):
+        model = resnet18(pretrained=True).to(self.device)
+        model = nn.Sequential(*(list(model.children())[:-1]))  # Removing the classification layer
+        model.feature_dim = 512  # Set the feature dimensionality of the model
+        return model
+
+    # En tu inicialización de modelos
     def initialize_models(self):
         models = {
             'resnet': resnet18(pretrained=True).to(self.device),
             'vgg': vgg16(pretrained=True).to(self.device),
             'vit': timm.create_model("vit_base_patch16_224", pretrained=True).to(self.device)
         }
+        # Suponiendo que los modelos tienen una dimensión de características de salida conocida,
+        # puedes establecer `feature_dim` para cada modelo aquí (esto es solo un ejemplo)
+        models['resnet'].feature_dim = 512
+        models['vgg'].feature_dim = 4096  # Descomentar si estás utilizando VGG
+        models['vit'].feature_dim = 768   # Descomentar si estás utilizando ViT
         for key in models:
             if key != 'vit':
                 models[key] = nn.Sequential(*(list(models[key].children())[:-1]))
@@ -63,13 +70,9 @@ class VisionFeatureExtractor:
 
     def extract_features_from_video(self, video_path):
         frames = self.extract_frames(video_path)
-        features_list = []
-
-        for model_name, model in self.models.items():
-            frame_features = [self.extract_features_from_frame(model, frame) for frame in frames]
-            features_list.append(np.stack(frame_features).reshape(len(frames), -1))
-
-        return self.early_fusion(features_list)
+        frame_features = [self.extract_features_from_frame(frame) for frame in frames]
+        features = np.stack(frame_features).reshape(len(frames), -1)
+        return self.early_fusion([features])
 
     def extract_frames(self, video_path):
         frames = []
@@ -82,11 +85,12 @@ class VisionFeatureExtractor:
         cap.release()
         return frames
 
-    def extract_features_from_frame(self, model, frame):
+    def extract_features_from_frame(self, frame):
         frame = cv2.resize(frame, (224, 224))
         tensor = torch.tensor(frame).float().unsqueeze(0).permute(0, 3, 1, 2) / 255.0
+        tensor = tensor.to(self.device)
         with torch.no_grad():
-            features = model(tensor)
+            features = self.model(tensor)
         return np.squeeze(features.cpu().numpy())
 
     def extract_features_from_folder(self, video_folder_path, df):
@@ -94,17 +98,25 @@ class VisionFeatureExtractor:
         video_feature_dict = {}
         video_files_to_process = [file for file in os.listdir(video_folder_path) if file in set(df['video_id'])]
         print(f"======{video_files_to_process}")
-        for video_file in tqdm(video_files_to_process):
 
+        if self.classification_type == "Emotion":
+            df = self.mapping_emotion(df)
+            label_column = 'Emotion_encoded'
+        elif self.classification_type == "Sentiment":
+            df = self.mapping_sentiment(df)
+            label_column = 'Sentiment_encoded'
+
+        for video_file in tqdm(video_files_to_process):
             video_path = os.path.join(video_folder_path, video_file)
             features = self.extract_features_from_video(video_path)
-            video_feature_dict[video_file] = features
+            label = df[df['video_id'] == video_file][label_column].values[0]
+            video_feature_dict[video_file] = {'features': features, 'label': label}
             print("Ready baby")
+
         return video_feature_dict
 
     def save_features(self, features, filename):
         np.save(f'{filename}_video_features.npy', features)
-
 
 class EarlyFusionLayer(nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -114,9 +126,10 @@ class EarlyFusionLayer(nn.Module):
     def forward(self, x):
         return self.fc(x)
 
-
 if __name__ == "__main__":
-    feature_extractor = VisionFeatureExtractor("Emotion")
+    # feature_extractor = VisionFeatureExtractor(input_dim=512, classification_type="Emotion")  # línea incorrecta
+    feature_extractor = VisionFeatureExtractor(classification_type="Emotion")  # línea corregida
+    #Train
     video_folder_path = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_splits_complete"
     video_path_csv = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_sent_emo.csv"
     df = pd.read_csv(video_path_csv)
@@ -125,3 +138,5 @@ if __name__ == "__main__":
 
     extracted_features = feature_extractor.extract_features_from_folder(video_folder_path, df)
     feature_extractor.save_features(extracted_features, "train")
+
+

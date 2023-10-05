@@ -1,4 +1,4 @@
-Sr No.,Utterance,Speaker,Emotion,Sentiment,Dialogue_ID,Utterance_ID,Season,Episode,StartTime,EndTime
+Sr No.,transcription,Speaker,Emotion,Sentiment,Dialogue_ID,Utterance_ID,Season,Episode,StartTime,EndTime
 1,also I was the point person on my companys transition from the KL-5 to GR-6 system.,Chandler,neutral,neutral,0,0,8,21,"00:16:16,059","00:16:21,731"
 2,You mustve had your hands full.,The Interviewer,neutral,neutral,0,1,8,21,"00:16:21,940","00:16:23,442"
 3,That I did. That I did.,Chandler,neutral,neutral,0,2,8,21,"00:16:23,442","00:16:26,389"

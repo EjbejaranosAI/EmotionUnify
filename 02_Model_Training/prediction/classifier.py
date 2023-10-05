@@ -16,8 +16,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 class Classifier(nn.Module):
     def __init__(self, input_dim, num_classes):
         super(Classifier, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 128)
-        self.fc2 = nn.Linear(128, num_classes)
+        self.fc1 = nn.Linear(input_dim, 64)
+        self.fc2 = nn.Linear(64, num_classes)
 
 
     def forward(self, x):
@@ -54,9 +54,9 @@ def train_classifier(X_train, X_dev, X_test, y_train, y_dev, y_test):
     dev_dataset = TensorDataset(torch.tensor(X_dev, dtype=torch.float), torch.tensor(y_dev, dtype=torch.long))
     test_dataset = TensorDataset(torch.tensor(X_test, dtype=torch.float), torch.tensor(y_test, dtype=torch.long))
 
-    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-    dev_loader = DataLoader(dev_dataset, batch_size=32, shuffle=False)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+    dev_loader = DataLoader(dev_dataset, batch_size=64, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 
     model = Classifier(X_train.shape[1], len(np.unique(y_train))).to(device)
     criterion = nn.CrossEntropyLoss()

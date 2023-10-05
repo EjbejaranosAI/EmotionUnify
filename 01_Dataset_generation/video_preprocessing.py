@@ -105,7 +105,6 @@ class VideoPreprocessing:
             self.downsample_video(destination_file_path)
             self.split_video_in_talking_intervals(destination_file_path)
             if Video(self.video_path).file_source == "custom":
-                pass
-                #self.delete_temp_files()
+                self.delete_temp_files()
         except Exception as e:
             raise Exception(f"Error al ejecutar el procesamiento de video: {str(e)}")

@@ -60,7 +60,7 @@ class VideoPreprocessing:
             intervals_in_seconds = remove_too_small_intervals(intervals/22000)
             self.split_video(intervals_in_seconds, output_dir)
         else:
-            print(f"Skipping split audio cause its from {audio.file_source}")
+            print(f"Skipping silent split audio cause its from {audio.file_source}")
 
     def downsample_video(self, output_path, target_fps=config.TARGET_VIDEO_FPS,
                          resolution_scale=config.TARGET_VIDEO_RESOLUTION_SCALE,

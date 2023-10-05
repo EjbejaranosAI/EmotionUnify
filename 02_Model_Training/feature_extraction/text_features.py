@@ -48,6 +48,10 @@ class TextFeatureExtractor:
         df['Emotion_encoded'] = df['Emotion'].map(emotion_mapping)
         return df
 
+    def save_features(self, text_feature_dict, save_path):
+        print(f"💾 Saving Extracted Features to {save_path}... 💾")
+        np.save(save_path, text_feature_dict)
+
     def mapping_sentiment(self, df):
         sentiment_mapping = {
             'neutral': 0,
@@ -57,7 +61,8 @@ class TextFeatureExtractor:
         df['Sentiment_encoded'] = df['Sentiment'].map(sentiment_mapping)
         return df
 
-    def extract_bert_features(self, df, batch_size=32):
+    def extract_bert_features(self, file_path, batch_size=32):
+        df = pd.read_csv(file_path)
         if self.classification_type == "Emotion":
             df = self.mapping_emotion(df)
         elif self.classification_type == "Sentiment":
@@ -107,23 +112,28 @@ if __name__ == "__main__":
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     feature_extractor = TextFeatureExtractor("Sentiment")
 
-    print("📂 Loading CSV Data... 📂")
-    path_csv = "./train_sent_emo.csv"
-    df_processed_train = pd.read_csv(path_csv)
+    datasets = {
+        'train': './text_features/train_sent_emo.csv',
+        'dev': './text_features/dev_sent_emo.csv',
+        'test': './text_features/test_sent_emo.csv'
+    }
 
-    print("🤖 Extracting BERT Features... 🤖")
-    text_feature_dict = feature_extractor.extract_bert_features(df_processed_train)
+    for split, path_csv in datasets.items():
+        print(f"📂 Loading {split.upper()} CSV Data... 📂")
+        print(f"🤖 Extracting BERT Features for {split.upper()} set... 🤖")
+        text_feature_dict = feature_extractor.extract_bert_features(path_csv)
 
-    print("💾 Saving Extracted Features... 💾")
-    np.save('./text_features/train_text_features.npy', text_feature_dict)
+        save_path = f'./text_features/{split}_text_features.npy'
+        feature_extractor.save_features(text_feature_dict, save_path)
 
-    print("🎉 Feature Extraction Complete! 🎉")
+        print(f"🎉 {split.upper()} Feature Extraction Complete! 🎉")
 
-    print("🔍 Inspecting the saved .npy file... 🔍")
-    loaded_X_train = np.load('./text_features/train_text_features.npy', allow_pickle=True)
-    print(f"📊 Shape: {loaded_X_train.shape}")
-    print(f"🔢 Data Type: {loaded_X_train.dtype}")
-    print(f"📈 Min Value: {np.min(loaded_X_train)}")
-    print(f"📉 Max Value: {np.max(loaded_X_train)}")
-    print("📝 File Inspection Complete 📝")
+        print(f"🔍 Inspecting the saved .npy file for {split.upper()} set... 🔍")
+        loaded_features = np.load(save_path, allow_pickle=True)
+        print(f"📊 Shape: {loaded_features.shape}")
+        print(f"🔢 Data Type: {loaded_features.dtype}")
+        print(f"📈 Min Value: {np.min(loaded_features)}")
+        print(f"📉 Max Value: {np.max(loaded_features)}")
+        print(f"📝 {split.upper()} File Inspection Complete 📝")
+
 

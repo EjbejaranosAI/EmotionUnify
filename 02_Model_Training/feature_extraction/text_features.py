@@ -2,9 +2,11 @@ import configparser
 from transformers import BertTokenizer, BertModel
 import torch
 import numpy as np
-from tqdm import tqdm
 import pandas as pd
 import time
+from torch.utils.data import TensorDataset, DataLoader
+from tqdm import tqdm
+
 
 class TextFeatureExtractor:
     def __init__(self, classification_type="Emotion"):
@@ -55,7 +57,7 @@ class TextFeatureExtractor:
         df['Sentiment_encoded'] = df['Sentiment'].map(sentiment_mapping)
         return df
 
-    def extract_bert_features(self, df):
+    def extract_bert_features(self, df, batch_size=32):
         if self.classification_type == "Emotion":
             df = self.mapping_emotion(df)
         elif self.classification_type == "Sentiment":
@@ -63,41 +65,62 @@ class TextFeatureExtractor:
 
         utterances = df['transcription'].tolist()
         input_ids, attention_masks = self.tokenize_utterances(utterances)
+
+        # Convert to tensor and move to the specified device
         input_ids, attention_masks = input_ids.to(self.device), attention_masks.to(self.device)
 
         print("⏳ Starting Feature Extraction... ⏳")
         start_time = time.time()
 
+        # Create a DataLoader to handle batching of data
+        dataset = TensorDataset(input_ids, attention_masks)
+        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+
+        # Initializing empty lists to store the outputs
+        all_outputs = []
+        all_labels = []
+
         with torch.no_grad():
-            bert_outputs = self.model(input_ids, attention_mask=attention_masks)
+            for batch in tqdm(dataloader, desc="Extracting Features"):
+                input_ids_batch, attention_masks_batch = batch
+                bert_outputs = self.model(input_ids_batch, attention_mask=attention_masks_batch)
+                all_outputs.append(bert_outputs[0][:, 0, :].cpu().numpy())  # Moving tensors to cpu
+
+        # Concatenating the results from all batches
+        X = np.concatenate(all_outputs, axis=0)
+
+        # Assuming the labels are numeric
+        y = df[f"{self.classification_type}_encoded"].values
 
         end_time = time.time()
         print(f"⌛ Feature Extraction completed in {end_time - start_time:.2f} seconds ⌛")
 
-        X = bert_outputs[0][:, 0, :].numpy()
-        y = df[f"{self.classification_type}_encoded"].tolist()
-        return X, y
+        # Creating a dictionary to store both features and labels
+        text_feature_dict = {f"text_{index}": {'features': features, 'label': label}
+                             for index, (features, label) in enumerate(zip(X, y))}
+
+        return text_feature_dict
 
 
 if __name__ == "__main__":
     print("🚀 Initializing Text Feature Extraction for Emotion Classification... 🚀")
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    feature_extractor = TextFeatureExtractor("Emotion")
+    feature_extractor = TextFeatureExtractor("Sentiment")
 
     print("📂 Loading CSV Data... 📂")
-    path_csv = "./dev_sent_emo.csv"
+    path_csv = "./train_sent_emo.csv"
     df_processed_train = pd.read_csv(path_csv)
 
     print("🤖 Extracting BERT Features... 🤖")
-    X_train, y_train = feature_extractor.extract_bert_features(df_processed_train)
+    text_feature_dict = feature_extractor.extract_bert_features(df_processed_train)
 
     print("💾 Saving Extracted Features... 💾")
-    np.save('./text_features/train_text_features.npy', X_train)
+    np.save('./text_features/train_text_features.npy', text_feature_dict)
 
     print("🎉 Feature Extraction Complete! 🎉")
 
     print("🔍 Inspecting the saved .npy file... 🔍")
-    loaded_X_train = np.load('./text_features/train_text_features.npy')
+    loaded_X_train = np.load('./text_features/train_text_features.npy', allow_pickle=True)
     print(f"📊 Shape: {loaded_X_train.shape}")
     print(f"🔢 Data Type: {loaded_X_train.dtype}")
     print(f"📈 Min Value: {np.min(loaded_X_train)}")

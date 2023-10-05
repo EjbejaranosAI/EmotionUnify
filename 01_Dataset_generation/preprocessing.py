@@ -45,7 +45,7 @@ class Preprocess:
                     file_path = os.path.join(folder_path, file)
                     destination_file_path = os.path.join(destination_folder_path, file)
                     VideoPreprocessing(file_path).execute(destination_file_path)
-                    break
+
                 pbar.update(1)
 
     def execute(self):

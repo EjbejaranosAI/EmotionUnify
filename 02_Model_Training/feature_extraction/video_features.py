@@ -9,7 +9,6 @@ import timm
 from tqdm import tqdm
 import pandas as pd
 
-
 class VisionFeatureExtractor:
     def __init__(self, classification_type="Emotion"):
         config = configparser.ConfigParser()
@@ -17,15 +16,16 @@ class VisionFeatureExtractor:
         self.input_dim = config.getint('VisionFeatureExtraction', 'input_dim')
         self.output_dim = config.getint('VisionFeatureExtraction', 'output_dim')
 
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.models = self.initialize_models()
-        self.early_fusion_layer = EarlyFusionLayer(input_dim=self.input_dim, output_dim=self.output_dim)
+        self.early_fusion_layer = EarlyFusionLayer(input_dim=self.input_dim, output_dim=self.output_dim).to(self.device)
         self.classification_type = classification_type
 
     def initialize_models(self):
         models = {
-            'resnet': resnet18(pretrained=True),
-            'vgg': vgg16(pretrained=True),
-            'vit': timm.create_model("vit_base_patch16_224", pretrained=True)
+            'resnet': resnet18(pretrained=True).to(self.device),
+            'vgg': vgg16(pretrained=True).to(self.device),
+            'vit': timm.create_model("vit_base_patch16_224", pretrained=True).to(self.device)
         }
         for key in models:
             if key != 'vit':
@@ -33,12 +33,30 @@ class VisionFeatureExtractor:
         return models
 
     def mapping_emotion(self, df):
-        # Mapping emotions to labels
-        pass
+        emotion_mapping = {
+            'neutral': [1, 0, 0, 0, 0, 0, 0],
+            'surprise': [0, 1, 0, 0, 0, 0, 0],
+            'fear': [0, 0, 1, 0, 0, 0, 0],
+            'sadness': [0, 0, 0, 1, 0, 0, 0],
+            'joy': [0, 0, 0, 0, 1, 0, 0],
+            'disgust': [0, 0, 0, 0, 0, 1, 0],
+            'anger': [0, 0, 0, 0, 0, 0, 1]
+        }
+        df['Emotion_encoded'] = df['Emotion'].map(emotion_mapping)
+        return df
+
+    def mapping_sentiment(self, df):
+        sentiment_mapping = {
+            'neutral': 0,
+            'positive': 1,
+            'negative': 2
+        }
+        df['Sentiment_encoded'] = df['Sentiment'].map(sentiment_mapping)
+        return df
 
     def early_fusion(self, features_list):
         combined_features = np.concatenate(features_list, axis=1)
-        combined_features_tensor = torch.tensor(combined_features).float()
+        combined_features_tensor = torch.tensor(combined_features).float().to(self.device)
         with torch.no_grad():
             fused_features = self.early_fusion_layer(combined_features_tensor)
         return fused_features.cpu().numpy()
@@ -72,14 +90,16 @@ class VisionFeatureExtractor:
         return np.squeeze(features.cpu().numpy())
 
     def extract_features_from_folder(self, video_folder_path, df):
+        print("Entering into the extractor")
         video_feature_dict = {}
         video_files_to_process = [file for file in os.listdir(video_folder_path) if file in set(df['video_id'])]
-
+        print(f"======{video_files_to_process}")
         for video_file in tqdm(video_files_to_process):
+
             video_path = os.path.join(video_folder_path, video_file)
             features = self.extract_features_from_video(video_path)
             video_feature_dict[video_file] = features
-
+            print("Ready baby")
         return video_feature_dict
 
     def save_features(self, features, filename):
@@ -100,6 +120,8 @@ if __name__ == "__main__":
     video_folder_path = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_splits_complete"
     video_path_csv = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_sent_emo.csv"
     df = pd.read_csv(video_path_csv)
+    df['video_id'] = "dia" + df['Dialogue_ID'].astype(str) + '_utt' + df['Utterance_ID'].astype(str)+ '.mp4'
+    print(df.head(3))
 
     extracted_features = feature_extractor.extract_features_from_folder(video_folder_path, df)
     feature_extractor.save_features(extracted_features, "train")

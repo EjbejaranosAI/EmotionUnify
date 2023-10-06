@@ -51,11 +51,11 @@ class VisionFeatureExtractor:
         df['Emotion_encoded'] = df['Emotion'].map(emotion_mapping)
         return df
 
-    def mapping_sentiment(self, df):
+    def mapping_sentiment(df):
         sentiment_mapping = {
-            'neutral': 0,
-            'positive': 1,
-            'negative': 2
+            'neutral': [1, 0, 0],
+            'positive': [0, 1, 0],
+            'negative': [0, 0, 1]
         }
         df['Sentiment_encoded'] = df['Sentiment'].map(sentiment_mapping)
         return df
@@ -125,17 +125,32 @@ class EarlyFusionLayer(nn.Module):
     def forward(self, x):
         return self.fc(x)
 
-if __name__ == "__main__":
-    # feature_extractor = VisionFeatureExtractor(input_dim=512, classification_type="Emotion")  # línea incorrecta
-    feature_extractor = VisionFeatureExtractor(classification_type="Emotion")  # línea corregida
-    #Train
-    video_folder_path = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_splits_complete"
-    video_path_csv = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_sent_emo.csv"
+
+def extract_and_save_features(feature_extractor, video_folder_path, video_path_csv, set_name):
     df = pd.read_csv(video_path_csv)
-    df['video_id'] = "dia" + df['Dialogue_ID'].astype(str) + '_utt' + df['Utterance_ID'].astype(str)+ '.mp4'
+    df['video_id'] = "dia" + df['Dialogue_ID'].astype(str) + '_utt' + df['Utterance_ID'].astype(str) + '.mp4'
+    print(f"Head of DataFrame for {set_name} set:")
     print(df.head(3))
 
     extracted_features = feature_extractor.extract_features_from_folder(video_folder_path, df)
-    feature_extractor.save_features(extracted_features, "train")
+    feature_extractor.save_features(extracted_features, set_name)
+
+if __name__ == "__main__":
+    feature_extractor = VisionFeatureExtractor(classification_type="Emotion")
+
+    # Paths for Train set
+    video_folder_path_train = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/train_splits"
+    video_path_csv_train = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/train_sent_emo.csv"
+    extract_and_save_features(feature_extractor, video_folder_path_train, video_path_csv_train, "train")
+
+    # Paths for Test set
+    video_folder_path_test = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/output_repeated_splits_test"
+    video_path_csv_test = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/test_sent_emo.csv"
+    extract_and_save_features(feature_extractor, video_folder_path_test, video_path_csv_test, "test")
+
+    # Paths for Dev set
+    video_folder_path_dev = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_splits_complete"
+    video_path_csv_dev = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_sent_emo.csv"
+    extract_and_save_features(feature_extractor, video_folder_path_dev, video_path_csv_dev, "dev")
 
 

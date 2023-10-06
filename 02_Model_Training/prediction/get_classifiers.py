@@ -10,6 +10,11 @@ from sklearn.linear_model import LogisticRegression
 import xgboost as xgb
 from sklearn.metrics import precision_score, recall_score
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import average_precision_score
+
+
+from utils.utils_data import load_features, prepare_data, merge_modalities
+from utils.evaluation_classifier import evaluate_classifier, calculate_map
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -24,28 +29,6 @@ class Classifier(nn.Module):
         x = torch.relu(self.fc1(x))
         x = self.fc2(x)
         return x
-
-
-def load_features(file_paths):
-    features_dict = {}
-    for modality, paths in file_paths.items():
-        features_dict[modality] = {split: np.load(path, allow_pickle=True).item() for split, path in paths.items()}
-    return features_dict
-
-
-def prepare_data(features_dict, modalities, split):
-    X_list, y_list = [], []
-    for modality in modalities:
-        features_labels = list(features_dict[modality][split].values())
-        X = np.array([item['features'] for item in features_labels])
-        y = np.array([item['label'] for item in features_labels])
-        X_list.append(X)
-        y_list.append(y)
-    return np.concatenate(X_list, axis=1), np.concatenate(y_list, axis=0)
-
-
-def merge_modalities(X_list):
-    return np.concatenate(X_list, axis=1)
 
 
 def train_classifier(X_train, X_dev, X_test, y_train, y_dev, y_test):
@@ -75,85 +58,61 @@ def train_classifier(X_train, X_dev, X_test, y_train, y_dev, y_test):
 
         # Evaluation on development set
         model.eval()
-        all_preds, all_labels = [], []
+        all_probs, all_labels = [], []
         for batch_X, batch_y in dev_loader:
             batch_X, batch_y = batch_X.to(device), batch_y.to(device)
             with torch.no_grad():
                 outputs = model(batch_X)
-            preds = torch.argmax(outputs, dim=1).cpu().numpy()
-            all_preds.extend(preds)
+            probs = torch.softmax(outputs, dim=1).cpu().numpy()  # Obtenga las probabilidades
+            all_probs.extend(probs)
             all_labels.extend(batch_y.cpu().numpy())
 
-        accuracy = accuracy_score(all_labels, all_preds)
-        f1 = f1_score(all_labels, all_preds, average='weighted')
-        print(f'Epoch {epoch + 1}, Dev Accuracy: {accuracy * 100:.2f}%, Dev F1 Score: {f1 * 100:.2f}%')
+        # Asegúrate de pasar all_probs en lugar de all_preds
+        dev_map = calculate_map(all_labels, all_probs)
+        print(f'Epoch {epoch + 1}, validation MaP: {dev_map * 100:.2f}%')
 
     # Evaluation on test set
     model.eval()
-    all_preds, all_labels = [], []
+    all_probs, all_labels = [], []
     for batch_X, batch_y in test_loader:
         batch_X, batch_y = batch_X.to(device), batch_y.to(device)
         with torch.no_grad():
             outputs = model(batch_X)
-        preds = torch.argmax(outputs, dim=1).cpu().numpy()
-        all_preds.extend(preds)
+        probs = torch.softmax(outputs, dim=1).cpu().numpy()  # Obtenga las probabilidades
+        all_probs.extend(probs)
         all_labels.extend(batch_y.cpu().numpy())
 
-    accuracy = accuracy_score(all_labels, all_preds)
-    f1 = f1_score(all_labels, all_preds, average='weighted')
-    print(f'Test Accuracy: {accuracy * 100:.2f}%, Test F1 Score: {f1 * 100:.2f}%')
+    # Suponiendo que las etiquetas están en formato binario one-hot
+    test_map = calculate_map(all_labels, all_probs)
+    print(f'Test MaP: {test_map * 100:.2f}%')
 
     return model
 
 
+
 def train_alternative_classifier(X_train, X_dev, X_test, y_train, y_dev, y_test):
-    scaler = StandardScaler()  # Initialize the scaler
-    X_train = scaler.fit_transform(X_train)  # Scale the training data
-    X_dev = scaler.transform(X_dev)  # Scale the development data
-    X_test = scaler.transform(X_test)  # Scale the test data
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_dev = scaler.transform(X_dev)
+    X_test = scaler.transform(X_test)
 
-    # SVM
-    svm_classifier = SVC()
-    svm_classifier.fit(X_train, y_train)
-    svm_preds_dev = svm_classifier.predict(X_dev)
-    svm_accuracy_dev = accuracy_score(y_dev, svm_preds_dev)
-    svm_f1_dev = f1_score(y_dev, svm_preds_dev, average='weighted')
-    print(f'SVM - Dev Accuracy: {svm_accuracy_dev * 100:.2f}%, Dev F1 Score: {svm_f1_dev * 100:.2f}%')
+    classifiers = {
+        'SVM': SVC(probability=True),
+        'Random Forest': RandomForestClassifier(),
+        'Linear Classifier': LogisticRegression(max_iter=10000),
+        'XGBoost': xgb.XGBClassifier(use_label_encoder=False, eval_metric='logloss')
+    }
 
-    # Random Forest
-    rf_classifier = RandomForestClassifier()
-    rf_classifier.fit(X_train, y_train)
-    rf_preds_dev = rf_classifier.predict(X_dev)
-    rf_accuracy_dev = accuracy_score(y_dev, rf_preds_dev)
-    rf_f1_dev = f1_score(y_dev, rf_preds_dev, average='weighted')
-    print(f'Random Forest - Dev Accuracy: {rf_accuracy_dev * 100:.2f}%, Dev F1 Score: {rf_f1_dev * 100:.2f}%')
+    for name, classifier in classifiers.items():
+        print(f'Training {name}...')
+        classifier.fit(X_train, y_train)
+        print(f'Evaluating {name} on dev set...')
+        evaluate_classifier(classifier, X_dev, y_dev, name)
 
-    # Logistic Regression
-    linear_classifier = LogisticRegression(max_iter=10000)  # Increased max_iter for convergence
-    linear_classifier.fit(X_train, y_train)
-    linear_preds_dev = linear_classifier.predict(X_dev)
-    linear_accuracy_dev = accuracy_score(y_dev, linear_preds_dev)
-    linear_f1_dev = f1_score(y_dev, linear_preds_dev, average='weighted')
-    print(
-        f'Linear Classifier - Dev Accuracy: {linear_accuracy_dev * 100:.2f}%, Dev F1 Score: {linear_f1_dev * 100:.2f}%')
+    print('Final evaluation on test set...')
+    for name, classifier in classifiers.items():
+        evaluate_classifier(classifier, X_test, y_test, name)
 
-    # XGBoost
-    xgb_classifier = xgb.XGBClassifier()
-    xgb_classifier.fit(X_train, y_train)
-    xgb_preds_dev = xgb_classifier.predict(X_dev)
-    xgb_accuracy_dev = accuracy_score(y_dev, xgb_preds_dev)
-    xgb_f1_dev = f1_score(y_dev, xgb_preds_dev, average='weighted')
-    print(f'XGBoost - Dev Accuracy: {xgb_accuracy_dev * 100:.2f}%, Dev F1 Score: {xgb_f1_dev * 100:.2f}%')
-
-    # Final evaluation on test set
-    classifiers = [svm_classifier, rf_classifier, linear_classifier, xgb_classifier]
-    classifier_names = ['SVM', 'Random Forest', 'Linear Classifier', 'XGBoost']
-
-    for classifier, name in zip(classifiers, classifier_names):
-        test_preds = classifier.predict(X_test)
-        test_accuracy = accuracy_score(y_test, test_preds)
-        test_f1 = f1_score(y_test, test_preds, average='weighted')
-        print(f'{name} - Test Accuracy: {test_accuracy * 100:.2f}%, Test F1 Score: {test_f1 * 100:.2f}%')
 
 if __name__ == "__main__":
     file_paths = {

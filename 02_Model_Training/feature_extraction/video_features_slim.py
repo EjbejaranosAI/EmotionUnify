@@ -29,8 +29,7 @@ class VisionFeatureExtractor:
             'vgg': vgg16(pretrained=True).to(self.device),
             'vit': timm.create_model("vit_base_patch16_224", pretrained=True).to(self.device)
         }
-        # Suponiendo que los modelos tienen una dimensión de características de salida conocida,
-        # puedes establecer `feature_dim` para cada modelo aquí (esto es solo un ejemplo)
+
         models['resnet'].feature_dim = 512
         models['vgg'].feature_dim = 4096  # Descomentar si estás utilizando VGG
         models['vit'].feature_dim = 768   # Descomentar si estás utilizando ViT

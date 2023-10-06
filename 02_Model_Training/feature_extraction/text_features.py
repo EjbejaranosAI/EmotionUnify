@@ -52,11 +52,11 @@ class TextFeatureExtractor:
         print(f"💾 Saving Extracted Features to {save_path}... 💾")
         np.save(save_path, text_feature_dict)
 
-    def mapping_sentiment(self, df):
+    def mapping_sentiment(df):
         sentiment_mapping = {
-            'neutral': 0,
-            'positive': 1,
-            'negative': 2
+            'neutral': [1, 0, 0],
+            'positive': [0, 1, 0],
+            'negative': [0, 0, 1]
         }
         df['Sentiment_encoded'] = df['Sentiment'].map(sentiment_mapping)
         return df

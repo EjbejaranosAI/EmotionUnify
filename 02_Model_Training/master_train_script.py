@@ -16,7 +16,7 @@ IS GOING TO BE ORGANIZZED IN THE NEXT WAY THE PIPELINE:
 """
 
 import configparser
-from feature_extraction import text_features, audio_features, video_features
+from feature_extraction import text_features, audio_features, video_features_slim
 from utilities import data_loader, read_metadata, store_models
 from prediction import blstm_classifier, classifier
 

@@ -15,9 +15,14 @@ TARGET_AUDIO_SAMPLERATE = 8000
 TARGET_AUDIO_BITRATE = "128k"
 
 # DATASETS
+DATASETS_ADAPTERS_PATH = {
+    "MELD: Multimodal EmotionLines Dataset": "/dataset_adapters/MELD_dataset_adapter.py"
+}
+
+
 SOURCES_CSV_PATHS = {
     "meld": [
-        "./datset_adapters/MELD/train_sent_emo.csv"
+        "./dataset_adapters/MELD/train_sent_emo.csv"
     ]
 }
 # good :

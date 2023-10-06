@@ -32,6 +32,6 @@ class Video(MediaFile):
         return features
 
 
-#v = Video("./datset_adapters/MELD/output_repeated_splits_test/dia0_utt0.mp4")
+#v = Video("./dataset_adapters/MELD/output_repeated_splits_test/dia0_utt0.mp4")
 
 #rint(v.get_transcription())

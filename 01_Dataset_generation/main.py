@@ -89,6 +89,9 @@ def main():
     if not config.SKIP_EXPLANATION:
         welcome_info()
 
+    if not os.path.exists(config.DATASET_FOLDER_PATH):
+        os.makedirs(config.DATASET_FOLDER_PATH)
+
     show_dataset_structure()
 
     dataset_is_correct = True

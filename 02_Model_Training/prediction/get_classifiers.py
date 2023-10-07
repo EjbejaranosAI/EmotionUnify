@@ -8,9 +8,14 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 if __name__ == "__main__":
     file_paths = {
         'text': {
-            'train': '../feature_extraction/text_features/train_text_features.npy',
-            'dev': '../feature_extraction/text_features/dev_text_features.npy',
-            'test': '../feature_extraction/text_features/test_text_features.npy'
+            'train': '../feature_extraction/text_features/train_text_features.pkl',
+            'dev': '../feature_extraction/text_features/dev_text_features.pkl',
+            'test': '../feature_extraction/text_features/test_text_features.pkl'
+        },
+        'video': {
+            'train': '../feature_extraction/vision_features/train_video_features.pkl',
+            'dev': '../feature_extraction/vision_features/dev_video_features.pkl',
+            'test': '../feature_extraction/vision_features/test_video_features.pkl'
         }
         # ... (add other modalities if needed)
     }

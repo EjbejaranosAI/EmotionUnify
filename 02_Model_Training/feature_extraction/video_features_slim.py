@@ -115,7 +115,7 @@ class VisionFeatureExtractor:
         return video_feature_dict
 
     def save_features(self, features, filename):
-        np.save(f'{filename}_video_features.npy', features)
+        np.save(f'vision_features/{filename}_video_features.npy', features)
 
 class EarlyFusionLayer(nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -139,18 +139,18 @@ if __name__ == "__main__":
     feature_extractor = VisionFeatureExtractor(classification_type="Emotion")
 
     # Paths for Train set
-    video_folder_path_train = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/train_splits"
-    video_path_csv_train = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/train_sent_emo.csv"
+    video_folder_path_train = "/01_Dataset_generation/dataset_adapters/MELD/train_splits"
+    video_path_csv_train = "/01_Dataset_generation/dataset_adapters/MELD/train_sent_emo.csv"
     extract_and_save_features(feature_extractor, video_folder_path_train, video_path_csv_train, "train")
 
     # Paths for Test set
-    video_folder_path_test = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/output_repeated_splits_test"
-    video_path_csv_test = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/test_sent_emo.csv"
+    video_folder_path_test = "/01_Dataset_generation/dataset_adapters/MELD/output_repeated_splits_test"
+    video_path_csv_test = "/01_Dataset_generation/dataset_adapters/MELD/test_sent_emo.csv"
     extract_and_save_features(feature_extractor, video_folder_path_test, video_path_csv_test, "test")
 
     # Paths for Dev set
-    video_folder_path_dev = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_splits_complete"
-    video_path_csv_dev = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/datset_adapters/MELD/dev_sent_emo.csv"
+    video_folder_path_dev = "/01_Dataset_generation/dataset_adapters/MELD/dev_splits_complete"
+    video_path_csv_dev = "/01_Dataset_generation/dataset_adapters/MELD/dev_sent_emo.csv"
     extract_and_save_features(feature_extractor, video_folder_path_dev, video_path_csv_dev, "dev")
 
 

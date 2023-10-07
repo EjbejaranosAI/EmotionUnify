@@ -11,6 +11,10 @@ def prepare_data(features_dict, modalities, split):
     X_list, y_list = [], []
     for modality in modalities:
         features_labels = list(features_dict[modality][split].values())
+
+        # Filtrar elementos donde las características son None
+        features_labels = [item for item in features_labels if item['features'] is not None]
+
         X = np.array([item['features'] for item in features_labels])
         y = np.array([item['label'] for item in features_labels])
         X_list.append(X)

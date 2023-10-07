@@ -107,7 +107,12 @@ class VisionFeatureExtractor:
 
         for video_file in tqdm(video_files_to_process):
             video_path = os.path.join(video_folder_path, video_file)
-            features = self.extract_features_from_video(video_path)
+            try:
+                features = self.extract_features_from_video(video_path)
+            except Exception as e:
+                print(f"Failed to process video {video_file}: {e}")
+                features = None
+
             label = df[df['video_id'] == video_file][label_column].values[0]
             video_feature_dict[video_file] = {'features': features, 'label': label}
             print("Ready baby")
@@ -139,18 +144,18 @@ if __name__ == "__main__":
     feature_extractor = VisionFeatureExtractor(classification_type="Emotion")
 
     # Paths for Train set
-    video_folder_path_train = "/01_Dataset_generation/dataset_adapters/MELD/train_splits"
-    video_path_csv_train = "/01_Dataset_generation/dataset_adapters/MELD/train_sent_emo.csv"
+    video_folder_path_train = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/train_splits"
+    video_path_csv_train = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/train_sent_emo.csv"
     extract_and_save_features(feature_extractor, video_folder_path_train, video_path_csv_train, "train")
 
     # Paths for Test set
-    video_folder_path_test = "/01_Dataset_generation/dataset_adapters/MELD/output_repeated_splits_test"
-    video_path_csv_test = "/01_Dataset_generation/dataset_adapters/MELD/test_sent_emo.csv"
+    video_folder_path_test = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/output_repeated_splits_test"
+    video_path_csv_test = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/test_sent_emo.csv"
     extract_and_save_features(feature_extractor, video_folder_path_test, video_path_csv_test, "test")
 
     # Paths for Dev set
-    video_folder_path_dev = "/01_Dataset_generation/dataset_adapters/MELD/dev_splits_complete"
-    video_path_csv_dev = "/01_Dataset_generation/dataset_adapters/MELD/dev_sent_emo.csv"
+    video_folder_path_dev = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/dev_splits_complete"
+    video_path_csv_dev = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/dev_sent_emo.csv"
     extract_and_save_features(feature_extractor, video_folder_path_dev, video_path_csv_dev, "dev")
 
 

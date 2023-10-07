@@ -246,8 +246,8 @@ def execute_option(option):
 
 if __name__ == "__main__":
     print_title("🚀 Welcome to the PREPROCESSING PIPELINE! 🚀")
-    print("📦 1️⃣ Download MELD dataset and adapt MELD 📥")
-    print("🔄 2️⃣ Only Adapt MELD dataset to the framework 🛠️")
+    print("📦 1️⃣ Download MELD dataset  📥")
+    print("🔄 2️⃣ Adapt MELD dataset to the framework 🛠️")
     print("🔙 3️⃣ Undo & Clean Up (Deletes processed directories)")
 
     option = input("👉 Select an option (1/2/3): 👈")

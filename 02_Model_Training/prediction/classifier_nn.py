@@ -4,9 +4,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
 from utils.evaluation_classifier import evaluate_classifier, calculate_map
 
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 
 class Classifier(nn.Module):
     def __init__(self, input_dim, num_classes):
@@ -14,25 +12,28 @@ class Classifier(nn.Module):
         self.fc1 = nn.Linear(input_dim, 64)
         self.fc2 = nn.Linear(64, num_classes)
 
-
     def forward(self, x):
         x = torch.relu(self.fc1(x))
         x = self.fc2(x)
         return x
 
-
 def train_classifier(X_train, X_dev, X_test, y_train, y_dev, y_test):
+    # Asegúrese de que y_train, y_dev, y_test sean tensores binarios one-hot
+    y_train = torch.tensor(y_train, dtype=torch.float)
+    y_dev = torch.tensor(y_dev, dtype=torch.float)
+    y_test = torch.tensor(y_test, dtype=torch.float)
+
     # Prepare DataLoader for training, development, and test sets
-    train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float), torch.tensor(y_train, dtype=torch.long))
-    dev_dataset = TensorDataset(torch.tensor(X_dev, dtype=torch.float), torch.tensor(y_dev, dtype=torch.long))
-    test_dataset = TensorDataset(torch.tensor(X_test, dtype=torch.float), torch.tensor(y_test, dtype=torch.long))
+    train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float), y_train)
+    dev_dataset = TensorDataset(torch.tensor(X_dev, dtype=torch.float), y_dev)
+    test_dataset = TensorDataset(torch.tensor(X_test, dtype=torch.float), y_test)
 
     train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
     dev_loader = DataLoader(dev_dataset, batch_size=64, shuffle=False)
     test_loader = DataLoader(test_dataset, batch_size=64, shuffle=False)
 
-    model = Classifier(X_train.shape[1], len(np.unique(y_train))).to(device)
-    criterion = nn.CrossEntropyLoss()
+    model = Classifier(X_train.shape[1], y_train.shape[1]).to(device)  # Cambiado len(np.unique(y_train)) a y_train.shape[1]
+    criterion = nn.BCEWithLogitsLoss()  # Cambiado de CrossEntropyLoss a BCEWithLogitsLoss
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     for epoch in range(100):  # Assuming 100 epochs

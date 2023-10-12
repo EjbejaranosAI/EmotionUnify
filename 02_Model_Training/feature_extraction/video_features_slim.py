@@ -1,19 +1,25 @@
 import os
+import time
 import numpy as np
 import torch
 import torch.nn as nn
-from torchvision.models import resnet18, vgg16  # Asegúrate de importar los modelos correctamente
+from torchvision.models import resnet18, vgg16
 import cv2
 import timm
 from tqdm import tqdm
 import pandas as pd
+import pickle
+from codecarbon import EmissionsTracker
+import matplotlib.pyplot as plt
+
 
 class VisionFeatureExtractor:
     def __init__(self, output_dim=256, classification_type="Sentiment"):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = self.initialize_model()
         self.output_dim = output_dim
-        self.early_fusion_layer = EarlyFusionLayer(input_dim=self.model.feature_dim, output_dim=self.output_dim).to(self.device)
+        self.early_fusion_layer = EarlyFusionLayer(input_dim=self.model.feature_dim, output_dim=self.output_dim).to(
+            self.device)
         self.classification_type = classification_type
 
     def initialize_model(self):
@@ -22,17 +28,15 @@ class VisionFeatureExtractor:
         model.feature_dim = 512  # Set the feature dimensionality of the model
         return model
 
-    # En tu inicialización de modelos
     def initialize_models(self):
         models = {
             'resnet': resnet18(pretrained=True).to(self.device),
             'vgg': vgg16(pretrained=True).to(self.device),
             'vit': timm.create_model("vit_base_patch16_224", pretrained=True).to(self.device)
         }
-
         models['resnet'].feature_dim = 512
-        models['vgg'].feature_dim = 4096  # Descomentar si estás utilizando VGG
-        models['vit'].feature_dim = 768   # Descomentar si estás utilizando ViT
+        models['vgg'].feature_dim = 4096  # Uncomment if using VGG
+        models['vit'].feature_dim = 768  # Uncomment if using ViT
         for key in models:
             if key != 'vit':
                 models[key] = nn.Sequential(*(list(models[key].children())[:-1]))
@@ -97,14 +101,12 @@ class VisionFeatureExtractor:
         video_feature_dict = {}
         video_files_to_process = [file for file in os.listdir(video_folder_path) if file in set(df['video_id'])]
         print(f"======{video_files_to_process}")
-
         if self.classification_type == "Emotion":
             df = self.mapping_emotion(df)
             label_column = 'Emotion_encoded'
         elif self.classification_type == "Sentiment":
             df = self.mapping_sentiment(df)
             label_column = 'Sentiment_encoded'
-
         for video_file in tqdm(video_files_to_process):
             video_path = os.path.join(video_folder_path, video_file)
             try:
@@ -112,15 +114,15 @@ class VisionFeatureExtractor:
             except Exception as e:
                 print(f"Failed to process video {video_file}: {e}")
                 features = None
-
-            label = df[df['video_id'] == video_file][label_column].values[0]
-            video_feature_dict[video_file] = {'features': features, 'label': label}
-            print("Ready baby")
-
+            label = df[df['video_id'] == video_file][label_column].values
+            video_feature_dict[video_file] = {'video_id': video_file, 'label': label, 'features': features}
         return video_feature_dict
 
     def save_features(self, features, filename):
-        np.save(f'vision_features/{filename}_video_features.npy', features)
+        os.makedirs('./vision_features', exist_ok=True)
+        with open(f'./vision_features/{filename}_video_features.pkl', 'wb') as f:
+            pickle.dump(features, f)
+
 
 class EarlyFusionLayer(nn.Module):
     def __init__(self, input_dim, output_dim):
@@ -136,26 +138,55 @@ def extract_and_save_features(feature_extractor, video_folder_path, video_path_c
     df['video_id'] = "dia" + df['Dialogue_ID'].astype(str) + '_utt' + df['Utterance_ID'].astype(str) + '.mp4'
     print(f"Head of DataFrame for {set_name} set:")
     print(df.head(3))
-
     extracted_features = feature_extractor.extract_features_from_folder(video_folder_path, df)
     feature_extractor.save_features(extracted_features, set_name)
 
+
 if __name__ == "__main__":
+    print("🚀 Initializing Text Feature Extraction for Emotion Classification... 🚀")
+    times = []
+    emissions_data = []
+
+    # Initialize Carbon tracker
+    tracker = EmissionsTracker(project_name="video_feature_extraction")
+    start_time = time.time()
+    tracker.start()
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     feature_extractor = VisionFeatureExtractor(classification_type="Emotion")
 
     # Paths for Train set
     video_folder_path_train = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/train_splits"
     video_path_csv_train = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/train_sent_emo.csv"
     extract_and_save_features(feature_extractor, video_folder_path_train, video_path_csv_train, "train")
+    current_time = time.time() - start_time
+    emissions = tracker.stop()
+    times.append(current_time)
+    emissions_data.append(emissions)
 
     # Paths for Test set
+    tracker.start()
     video_folder_path_test = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/output_repeated_splits_test"
     video_path_csv_test = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/test_sent_emo.csv"
     extract_and_save_features(feature_extractor, video_folder_path_test, video_path_csv_test, "test")
+    current_time = time.time() - start_time
+    emissions = tracker.stop()
+    times.append(current_time)
+    emissions_data.append(emissions)
 
     # Paths for Dev set
+    tracker.start()
     video_folder_path_dev = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/dev_splits_complete"
     video_path_csv_dev = "/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/dev_sent_emo.csv"
     extract_and_save_features(feature_extractor, video_folder_path_dev, video_path_csv_dev, "dev")
+    current_time = time.time() - start_time
+    emissions = tracker.stop()
+    times.append(current_time)
+    emissions_data.append(emissions)
+
+    emissions: float = tracker.stop()
+    print(f"🔍 Emissions: {emissions} kg")
+    end_time = time.time()
+    print(f"⌛ Feature Extraction completed in {end_time - start_time:.2f} seconds ⌛")
 
 

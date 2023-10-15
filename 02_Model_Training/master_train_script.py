@@ -1,89 +1,103 @@
-"""
-THIS SCRIPT IS TO EXECUTE THE FEATURE EXTRACTION AND TRAINING OF THE MULTIMODAL MODELS,
-IS GOING TO BE ORGANIZZED IN THE NEXT WAY THE PIPELINE:
-0. Read configurations from config.ini
-1. Read the metadata dataset and read the videos
-2 Take video, audio or text modality for each video
-3. From text modality made a feature extraction
-    output: Save a NPY file with the feature extraction with the same size in tensor that the number of samples in csv
-3. From audio modality made a feature extraction
-     output: Save a NPY file with the feature extraction with the same size in tensor that the number of samples in csv
-3. From video modality made a feature extraction
-     output: Save a  NPY file with the feature extraction with the same size in tensor that the number of samples in csv
-4. Take the feature extraction {Text, Vision, Audio} and concatenate the modalities (Two possible options[1.Just concatenate - 2. Network with attention mechanism])
-5. Made prediction by two options (Classifier or BLSTM)
-6. Store weigths and models
-"""
-
+import time
 import configparser
-from feature_extraction import text_features, audio_features, video_features_slim
-from utilities import data_loader, read_metadata, store_models
-from prediction import blstm_classifier, classifier
+from codecarbon import EmissionsTracker
+from feature_extraction.text_features import TextFeatureExtractor
+from feature_extraction.video_features import VisionFeatureExtractor
+from feature_extraction.audio_features import AudioFeatureExtractor
+
+
 
 class MultimodalTrainPipeline:
-    def __init__(self, config_file):
+    def __init__(self, config_file=None):
         self.config = configparser.ConfigParser()
         self.config.read(config_file)
+        self.output_path = self.config['General'].get('output_path')
+        classification_type = self.config['General'].get('classification_type', 'Sentiment')
+        config_audio = self.config['AudioFeatureExtraction']
+        self.text_feature_extractor = TextFeatureExtractor(classification_type)
+        self.vision_feature_extractor = VisionFeatureExtractor(classification_type)
+        self.audio_feature_extractor = AudioFeatureExtractor(config_audio,classification_type)
 
-    def read_metadata_and_videos(self):
-        """Read metadata and videos."""
-        try:
-            data_loader.load()
-        except Exception as e:
-            print(f"Error in read_metadata_and_videos: {e}")
 
-    def extract_text_features(self):
-        """Extract features from text modality."""
-        try:
-            text_features.extract()
-        except Exception as e:
-            print(f"Error in extract_text_features: {e}")
+    def get_features(self, text_csv=None, vision_data=None, vision_csv=None,audio_data=None, audio_csv=None):
+        text_features = None
+        vision_features = None
+        audio_features = None
 
-    def extract_audio_features(self):
-        """Extract features from audio modality."""
-        try:
-            audio_features.extract()
-        except Exception as e:
-            print(f"Error in extract_audio_features: {e}")
+        if text_csv is not None:
+            times = []
+            emissions_data = []
+            tracker = EmissionsTracker(project_name=f"Text_feature_extraction")
+            start_time = time.time()
+            tracker.start()
 
-    def extract_video_features(self):
-        """Extract features from video modality."""
-        try:
-            video_features.extract()
-        except Exception as e:
-            print(f"Error in extract_video_features: {e}")
+            text_features = self.text_feature_extractor.extract_bert_features(text_csv)
+            self.text_feature_extractor.save_features_pickle(text_features, self.output_path+'_text_features.pkl')
 
-    def concatenate_features(self, mode='concatenate'):
-        """Concatenate extracted features."""
-        try:
-            # Implement feature concatenation here
-            pass
-        except Exception as e:
-            print(f"Error in concatenate_features: {e}")
+            current_time = time.time() - start_time
+            total_emissions = tracker.stop()
+            times.append(current_time)
+            emissions_data.append(total_emissions)
 
-    def make_prediction(self, mode='Classifier'):
-        """Make predictions using Classifier or BLSTM."""
-        try:
-            if mode == 'Classifier':
-                classifier.predict()
-            else:
-                blstm_classifier.predict()
-        except Exception as e:
-            print(f"Error in make_prediction: {e}")
+        if audio_data is not None and audio_csv is not None:
+            times = []
+            emissions_data = []
+            tracker = EmissionsTracker(project_name=f"Audio_feature_extraction")
+            start_time = time.time()
+            tracker.start()
 
-    def store_weights_and_models(self):
-        """Store model weights and configurations."""
-        try:
-            store_models.store()
-        except Exception as e:
-            print(f"Error in store_weights_and_models: {e}")
+            audio_features = self.audio_feature_extractor.extract_and_save_features(audio_data, audio_csv, "AudioData")
+
+            current_time = time.time() - start_time
+            total_emissions = tracker.stop()
+            times.append(current_time)
+            emissions_data.append(total_emissions)
+
+        if vision_data is not None and vision_csv is not None:
+            times = []
+            emissions_data = []
+            tracker = EmissionsTracker(project_name=f"Vision_feature_extraction")
+            start_time = time.time()
+            tracker.start()
+
+            vision_features = self.vision_feature_extractor.extract_and_save_features(vision_data, vision_csv, "VisionData")
+
+            current_time = time.time() - start_time
+            total_emissions = tracker.stop()
+            times.append(current_time)
+            emissions_data.append(total_emissions)
+
+
+
+    def align_features(self):
+        pass
+    def fusion_features(self):
+        pass
+
+    def made_prediction(self):
+        pass
 
 if __name__ == "__main__":
-    pipeline = MultimodalTrainPipeline('config.ini')
-    pipeline.read_metadata_and_videos()
-    pipeline.extract_text_features()
-    pipeline.extract_audio_features()
-    pipeline.extract_video_features()
-    pipeline.concatenate_features()
-    pipeline.make_prediction()
-    pipeline.store_weights_and_models()
+    pipeline = MultimodalTrainPipeline('./config.ini')
+    dataset_text = './feature_extraction/text_features/dev_sent_emo.csv'
+    dataset_vision = '/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/dev_splits_complete'
+    dataset_vision_csv = '/Users/lernmi/Desktop/EmotionUnify/01_Dataset_generation/dataset_adapters/MELD/dev_sent_emo.csv'
+    dataset_audio = dataset_vision
+    dataset_audio_csv = dataset_vision_csv
+
+    print("Done [@ 1]")
+    pipeline.get_features(
+        text_csv=dataset_text,
+        vision_data=dataset_vision,
+        vision_csv=dataset_vision_csv,
+        audio_data=dataset_audio,  # Assuming you have this
+        audio_csv=dataset_audio_csv
+    )
+    print("Done [@ 2]")
+    #pipeline.align_features()
+    print("Done [@ 3]")
+    #pipeline.fusion_features()
+    print("Done [@ 4]")
+    #pipeline.made_prediction()
+
+

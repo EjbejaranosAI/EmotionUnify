@@ -34,7 +34,7 @@ class FusionModels:
             self.text_projection = nn.Linear(768, 256)
             self.fusion_layer = nn.Linear(512, 256)
             self.aditional_layer = nn.Linear(256,256)
-            self.dropout = nn.Dropout(0.4)
+            self.dropout = nn.Dropout(0.5)
 
         def forward(self, audio, text):
             audio = self.audio_projection(audio)
@@ -65,7 +65,7 @@ class FusionModels:
 
 
 class Trainer:
-    def __init__(self, train_dataloader, val_dataloader, device, early_stopping_patience=290):
+    def __init__(self, train_dataloader, val_dataloader, device, early_stopping_patience=80):
         self.text_audio_model = FusionModels.TextAudioFusion()
         self.text_video_model = FusionModels.TextVideoFusion()
         self.final_model = FusionModels.FinalFusion()
@@ -97,7 +97,7 @@ class Trainer:
         torch.save(self.text_audio_model.state_dict(), f'{path}/text_audio_model_best.pth')
         torch.save(self.text_video_model.state_dict(), f'{path}/text_video_model_best.pth')
 
-    def train(self, epochs=1500):
+    def train(self, epochs=500):
         train_f1_scores = []
         val_f1_scores = []
 
@@ -213,8 +213,8 @@ def main():
     train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
 
     # Create DataLoader instances for training and validation
-    train_dataloader = DataLoader(train_dataset, batch_size=128, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=128, shuffle=False)
+    train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=64, shuffle=False)
 
     # Instantiate the Trainer class with the required arguments
     trainer = Trainer(train_dataloader, val_dataloader, device)

@@ -13,9 +13,9 @@ def load_features(file_path):
     return features
 
 # Load features
-audio_features = load_features("/Users/lernmi/Desktop/EmotionUnify/02_Model_Training/feature_extraction/audio_features/Dev_audio_features.pkl")
-video_features = load_features("/Users/lernmi/Desktop/EmotionUnify/02_Model_Training/feature_extraction/vision_features/Dev_video_features_crop_face.pkl")
-text_features = load_features("/Users/lernmi/Desktop/EmotionUnify/02_Model_Training/feature_extraction/text_features/dev_text_features.pkl")
+audio_features = load_features("../feature_extraction/audio_features/Dev_audio_features.pkl")
+video_features = load_features("../feature_extraction/vision_features/Dev_video_features_crop_face.pkl")
+text_features = load_features("../feature_extraction/text_features/dev_text_features.pkl")
 
 # Find the common video_ids across all three dictionaries
 common_video_ids = set(audio_features.keys()) & set(video_features.keys()) & set(text_features.keys())

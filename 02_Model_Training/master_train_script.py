@@ -24,7 +24,6 @@ class MultimodalTrainPipeline:
         tracker = EmissionsTracker(project_name=f"{func.__name__}")
         start_time = time.time()
         tracker.start()
-
         result = func(*args, **kwargs)
 
         elapsed_time = time.time() - start_time
@@ -72,11 +71,11 @@ if __name__ == "__main__":
         audio_data=dataset_audio,
         audio_csv=dataset_audio_csv
     )
+
     print("🎉 Feature extraction complete! [@ 2]")
     #pipeline.align_features()
     print("Done [@ 3]")
     #pipeline.fusion_features()
     print("Done [@ 4]")
     #pipeline.made_prediction()
-
 

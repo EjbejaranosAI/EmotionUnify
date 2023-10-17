@@ -15,9 +15,10 @@ model_name = "bert-base-uncased"
 max_length = 128
 
 class TextFeatureExtractor:
-    def __init__(self, classification_type="Emotion"):
+    def __init__(self, classification_type="Sentiment"):
         config = configparser.ConfigParser()
         config.read('../config.ini')
+
         self.model_name = model_name
         self.max_length = max_length
         self.tokenizer = BertTokenizer.from_pretrained(self.model_name)
@@ -94,6 +95,8 @@ class TextFeatureExtractor:
                 all_outputs.append(bert_outputs[0][:, 0, :].cpu().numpy())
 
         X = np.concatenate(all_outputs, axis=0)
+        print(f"Debug: self.classification_type = {self.classification_type}")
+
         y = df[f"{self.classification_type}_encoded"].values.tolist()
 
         text_feature_dict = {}
@@ -113,9 +116,9 @@ if __name__ == "__main__":
     feature_extractor = TextFeatureExtractor("Sentiment")
 
     datasets = {
-        'train': './text_features/train_sent_emo.csv',
+        #'train': './text_features/train_sent_emo.csv',
         'dev': './text_features/dev_sent_emo.csv',
-        'test': './text_features/test_sent_emo.csv'
+        #'test': './text_features/test_sent_emo.csv'
     }
 
     tracker.start()  # Inicie el rastreador antes de entrar en el bucle

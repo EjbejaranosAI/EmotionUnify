@@ -20,13 +20,41 @@ class FusionModels:
     class FinalFusion(nn.Module):
         def __init__(self):
             super(FusionModels.FinalFusion, self).__init__()
-            self.final_layer = nn.Linear(512, 3)
+            # Initial linear layer
+            self.final_layer1 = nn.Linear(512, 256)
+            # Batch Normalization
+            self.batch_norm1 = nn.BatchNorm1d(256)
+            # Non-linear activation
+            self.relu = nn.ReLU()
+            # Additional linear layer
+            self.final_layer2 = nn.Linear(256, 128)
+            # Batch Normalization
+            self.batch_norm2 = nn.BatchNorm1d(128)
+            # Dropout layer
+            self.dropout = nn.Dropout(0.1)
+            # Final layer
+            self.final_layer3 = nn.Linear(128, 3)
 
         def forward(self, text_audio_fused, text_video_fused):
             concatenated = torch.cat((text_audio_fused, text_video_fused), dim=1)
-            output = self.final_layer(concatenated)
-            return output
+            # Through first linear layer
+            output = self.final_layer1(concatenated)
+            # Through batch normalization
+            output = self.batch_norm1(output)
+            # Through ReLU activation
+            output = self.relu(output)
+            # Through second linear layer
+            output = self.final_layer2(output)
+            # Through second batch normalization
+            output = self.batch_norm2(output)
+            # Through ReLU activation
+            output = self.relu(output)
+            # Through dropout layer
+            output = self.dropout(output)
+            # Through final linear layer
+            output = self.final_layer3(output)
 
+            return output
     class TextAudioFusion(nn.Module):
         def __init__(self):
             super(FusionModels.TextAudioFusion, self).__init__()
@@ -34,7 +62,7 @@ class FusionModels:
             self.text_projection = nn.Linear(768, 256)
             self.fusion_layer = nn.Linear(512, 256)
             self.aditional_layer = nn.Linear(256,256)
-            self.dropout = nn.Dropout(0.5)
+            self.dropout = nn.Dropout(0.4)
 
         def forward(self, audio, text):
             audio = self.audio_projection(audio)
@@ -213,8 +241,8 @@ def main():
     train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size])
 
     # Create DataLoader instances for training and validation
-    train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=64, shuffle=False)
+    train_dataloader = DataLoader(train_dataset, batch_size=128, shuffle=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=128, shuffle=False)
 
     # Instantiate the Trainer class with the required arguments
     trainer = Trainer(train_dataloader, val_dataloader, device)

@@ -34,7 +34,7 @@ class FusionModels:
             self.text_projection = nn.Linear(768, 256)
             self.fusion_layer = nn.Linear(512, 256)
             self.aditional_layer = nn.Linear(256,256)
-            self.dropout = nn.Dropout(0.4)
+            self.dropout = nn.Dropout(0.45)
 
         def forward(self, audio, text):
             audio = self.audio_projection(audio)
@@ -206,7 +206,7 @@ def main():
 
     # Calculate the sizes for training and validation sets (80/20 split)
     total_size = len(full_dataset)
-    train_size = int(0.85 * total_size)
+    train_size = int(0.8 * total_size)
     val_size = total_size - train_size
 
     # Split the dataset

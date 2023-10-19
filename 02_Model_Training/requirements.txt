@@ -9,3 +9,12 @@ moviepy
 torchaudio
 scikit-learn
 
+codecarbon==2.3.1
+matplotlib
+opencv-python
+torchvision
+mediapipe
+moviepy
+torchaudio
+scikit-learn
+

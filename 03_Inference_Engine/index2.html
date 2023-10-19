@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css"
+    />
+    <title>GitHub-like Landing</title>
+    <style>
+
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            color: #58a6ff;
+        }
+
+        .gb-container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .file-upload, .preprocessing, .inference, .feature-extraction, .loading-inference{
+            width: 40%;
+            min-width: 550px;
+            display: none;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            background-color: #161b22;
+            margin: 10px;
+            animation-duration: 1s;
+        }
+
+        header{
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: flex-start;
+            align-items: center;
+
+        }
+
+
+
+        .feature-extraction.active{
+            display: flex;
+            flex-flow: column nowrap;
+
+        }
+
+        .preprocessing {
+            padding: 1rem;
+            flex-flow: column;
+            justify-content: flex-start;
+        }
+
+        .preprocessing-output {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: space-around;
+            align-items: flex-end;
+
+        }
+
+        svg{
+            margin-left: auto;
+        }
+
+
+        img{
+            width: 30px;
+            height: 30px;
+            margin-right: 1rem;
+            mix-blend-mode: lighten;
+        }
+
+        .video-audio{
+            margin: 1rem;
+        }
+
+        .file-upload {
+            border: 1px dashed #c9d1d9;
+        }
+
+        .inference {
+            color: #58ff66;
+            border: 1px solid #58ff66;
+        }
+
+        .file-upload.active, .preprocessing.active, .inference.active, .loading-inference.active{
+            display: flex;
+            justify-content: center;
+        }
+
+        .preprocessing.active{
+            justify-content: flex-start;
+        }
+
+        .file-upload.active,
+        .preprocessing.active .preprocessing-progress,
+        .inference.active .inference-progress {
+            display: block;
+        }
+
+        .upload-progress, .preprocessing-progress, .feature-extraction-progress {
+            display: none;
+            background-color: #0366d6;
+            margin-top: 0.5rem;
+            border-radius: 2rem;
+            height: 10px;
+        }
+
+        .feature-extraction-progress{
+            background-color: #32af3c;
+        }
+
+        .upload-progress.active, .preprocessing-progress.active, .feature-extraction-progress.active {
+            display: block;
+            animation: loading 2000ms linear forwards;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes loading {
+            0% {
+                width: 0;
+            }
+            80% {
+                width: 100%;
+            }
+            100% {
+                width: 100%;
+                display: none;
+            }
+        }
+
+        p{
+            margin: 0;
+        }
+
+        video, audio {
+            border-radius: 0.5rem;
+            max-width: 100%;
+        }
+
+        .smiley {
+            font-size: 48px;
+        }
+
+        .smiley::after {
+            content: 'Good';
+            display: block;
+            font-size: 24px;
+            color: #58ff66;
+        }
+        button{
+            display: none;
+        }
+
+        button.active {
+            display: flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            font-weight: bold;
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.5s ease;
+
+            /* Agregar una animación al pasar el mouse */
+            position: relative;
+            overflow: hidden;
+        }
+        button:focus{
+            outline: none;
+        }
+
+        button::before {
+            content: "";
+            background: #fff;
+            width: 0;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+
+        button:hover {
+            background: #25a231;
+        }
+
+        button:hover::before {
+            width: 100%;
+        }
+
+
+
+
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Multimodal Emotion Detection</h1>
+</div>
+<div class="gb-container">
+    <div class="file-upload active">
+        <label class="w-100 h-100" for="file-input">
+            <h2>Upload file</h2>
+            <p>Click here to select a file.</p>
+        </label>
+        <input type="file" id="file-input" style="display: none">
+        <div class="upload-progress"></div>
+    </div>
+    <div class="preprocessing">
+        <head class="hidden">Preprocessing</head>
+        <div class="preprocessing-progress"></div>
+        <div class="preprocessing-output video-audio hidden">
+            <video controls class="video-audio hidden" src="tu_video.mp4"></video>
+            <audio controls class="video-audio hidden" src="tu_audio.mp3"></audio>
+        </div>
+    </div>
+<button class="feature-extraction-button " onclick="extract_features()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+      <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
+    </svg>
+    &nbsp&nbspExtract features
+</button>
+    <div class="feature-extraction audio-features">
+        <header>
+            <img src="./media/modalidad-audio.png" alt="">
+            <p>Extracting audio features</p>
+            <svg class="audio-svg hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#59b841" class="bi bi-check-lg" viewBox="0 0 16 16">
+              <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
+            </svg>
+        </header>
+
+        <div class="feature-extraction-progress active"></div>
+    </div>
+    <div class="feature-extraction image-features">
+        <header>
+            <img src="./media/modalidad-imagen.png" alt="">
+            <p>Extracting image features</p>
+            <svg class="video-svg hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#59b841" class="bi bi-check-lg" viewBox="0 0 16 16">
+              <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
+            </svg>
+        </header>
+
+        <div class="feature-extraction-progress active"></div>
+    </div>
+    <div class="feature-extraction text-features">
+        <header>
+            <img src="./media/modalidad-texto.png" alt="">
+            <p>Extracting text features</p>
+            <svg class="text-svg hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#59b841" class="bi bi-check-lg" viewBox="0 0 16 16">
+              <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
+            </svg>
+        </header>
+
+        <div class="feature-extraction-progress active"></div>
+    </div>
+    <button class="inference-button " onclick="run_inference()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
+        </svg>
+        &nbsp&nbspRun Inference
+    </button>
+
+    <button class="btn btn-primary loading-inference" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      &nbspRunning inference...
+    </button>
+    <div class="inference">
+        <div class="smiley">😃</div>
+    </div>
+</div>
+
+<script>
+    const fileInput = document.getElementById('file-input');
+    const fileUpload = document.querySelector('.file-upload');
+    const preprocessing = document.querySelector('.preprocessing');
+    const audio_features = document.querySelector('.audio-features');
+    const image_features = document.querySelector('.image-features');
+    const text_features = document.querySelector('.text-features');
+    const loading_inference = document.querySelector('.loading-inference');
+    const inference = document.querySelector('.inference');
+    const feature_extraction_button = document.querySelector('.feature-extraction-button');
+    const inference_button = document.querySelector('.inference-button');
+
+    function run_inference(){
+        setTimeout(() => {
+                                    loading_inference.classList.add('active');
+
+                                    setTimeout(() => {
+                                        loading_inference.classList.remove('active');
+                                        inference.classList.add('active');
+
+                                    }, 2000);
+
+                                }, 100);
+    }
+
+    function extract_features(){
+        audio_features.classList.add('active');
+                    setTimeout(() => {
+                        const audio_svg = document.querySelector('.audio-svg');
+                        audio_svg.classList.remove('hidden');
+
+                        image_features.classList.add('active');
+                        setTimeout(() => {
+
+                            const video_svg = document.querySelector('.video-svg');
+                            video_svg.classList.remove('hidden');
+
+                            text_features.classList.add('active');
+                            setTimeout(() => {
+                                const text_svg = document.querySelector('.text-svg');
+                                text_svg.classList.remove('hidden');
+
+                                inference_button.classList.add('active');
+
+
+                            }, 2000);
+
+                        }, 2000);
+
+                    }, 2000);
+    }
+
+    fileInput.addEventListener('change', () => {
+        fileUpload.classList.add('active');
+
+        setTimeout(() => {
+            preprocessing.classList.add('active');
+            const preprocessingProgress = document.querySelector('.preprocessing-progress');
+            preprocessingProgress.classList.add('active');
+
+            setTimeout(() => {
+
+                const inferenceProgress = document.querySelector('.preprocessing-progress');
+                inferenceProgress.classList.add('active');
+
+                // Show video and audio after inference progress animation
+                const videoAudioElements = document.querySelectorAll('.video-audio');
+                videoAudioElements.forEach(element => element.classList.remove('hidden'));
+                feature_extraction_button.classList.add('active');
+
+            }, 2000);
+        }, 500);
+    });
+
+
+</script>
+</body>
+</html>

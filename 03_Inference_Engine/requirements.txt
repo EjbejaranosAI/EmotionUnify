@@ -1,0 +1,9 @@
+eel
+pandas==1.4.4
+tqdm==4.64.1
+Pillow==9.5.0
+moviepy==1.0.3
+librosa==0.10.1
+SpeechRecognition==3.10.0
+pydub==0.25.1
+mediapipe==0.10.7

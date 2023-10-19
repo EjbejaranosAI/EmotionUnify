@@ -36,7 +36,7 @@ class VideoPreprocessing:
 
                 # Genera el nombre de archivo de salida para el subclip
                 base_filename = os.path.splitext(os.path.basename(self.video_path))[0]
-                subclip_filename = f"{base_filename}_{i}.mp4"
+                subclip_filename = f"preprocessed_video_{i}.mp4"
                 subclip_path = os.path.join(output_dir, subclip_filename)
 
                 if config.REMOVE_AUDIO_FROM_PREPROCESSED_VIDEOS:
@@ -106,7 +106,6 @@ class VideoPreprocessing:
         try:
             self.downsample_video(destination_file_path)
             self.split_video_in_talking_intervals(destination_file_path)
-            if Video(self.video_path).file_source == "custom":
-                self.delete_temp_files()
+
         except Exception as e:
             raise Exception(f"Error al ejecutar el procesamiento de video: {str(e)}")

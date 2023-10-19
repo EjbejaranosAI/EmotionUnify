@@ -7,6 +7,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css"
     />
+    <script type="text/javascript" src="/eel.js"></script>
     <title>GitHub-like Landing</title>
     <style>
 
@@ -39,6 +40,7 @@
             align-items: center;
             height: fit-content;
             flex-direction: column;
+            margin-bottom: 10rem;
         }
 
         .file-upload, .preprocessing, .inference, .feature-extraction, .loading-inference{
@@ -138,6 +140,10 @@
         .upload-progress.active, .preprocessing-progress.active, .feature-extraction-progress.active {
             display: block;
             animation: loading 2000ms linear forwards;
+        }
+
+        .preprocessing-progress.active{
+            animation: loading  8500ms linear forwards;
         }
 
         .hidden {
@@ -246,8 +252,8 @@
         <head class="hidden">Preprocessing</head>
         <div class="preprocessing-progress"></div>
         <div class="preprocessing-output video-audio hidden">
-            <video controls class="video-audio hidden" src="tu_video.mp4"></video>
-            <audio controls class="video-audio hidden" src="tu_audio.mp3"></audio>
+            <video id="preprocessed_video" controls class="video-audio hidden" src=""></video>
+            <audio id="preprocessed_audio" controls class="video-audio hidden" src=""></audio>
         </div>
     </div>
 <button class="feature-extraction-button " onclick="extract_features()">
@@ -258,7 +264,7 @@
 </button>
     <div class="feature-extraction audio-features">
         <header>
-            <img src="./media/modalidad-audio.png" alt="">
+            <img src="media/modalidad-audio.png" alt="">
             <p>Extracting audio features</p>
             <svg class="audio-svg hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#59b841" class="bi bi-check-lg" viewBox="0 0 16 16">
               <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
@@ -269,7 +275,7 @@
     </div>
     <div class="feature-extraction image-features">
         <header>
-            <img src="./media/modalidad-imagen.png" alt="">
+            <img src="media/modalidad-imagen.png" alt="">
             <p>Extracting image features</p>
             <svg class="video-svg hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#59b841" class="bi bi-check-lg" viewBox="0 0 16 16">
               <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
@@ -280,7 +286,7 @@
     </div>
     <div class="feature-extraction text-features">
         <header>
-            <img src="./media/modalidad-texto.png" alt="">
+            <img src="media/modalidad-texto.png" alt="">
             <p>Extracting text features</p>
             <svg class="text-svg hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#59b841" class="bi bi-check-lg" viewBox="0 0 16 16">
               <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
@@ -319,8 +325,35 @@
     const inference_button = document.querySelector('.inference-button');
     let fileName = null;
 
-    function execute_preprocessing(){
+    function preprocess(){
+        const inferenceProgress = document.querySelector('.preprocessing-progress');
+        inferenceProgress.classList.add('active');
 
+        // Show video and audio after inference progress animation
+        const videoAudioElements = document.querySelectorAll('.video-audio');
+        videoAudioElements.forEach(element => element.classList.remove('hidden'));
+        feature_extraction_button.classList.add('active');
+    }
+
+    eel.expose(set_preprocessing_media_output_paths);
+    function set_preprocessing_media_output_paths(newVideoSrc, newAudioSrc) {
+        const preprocessedVideo = document.getElementById('preprocessed_video');
+        const preprocessedAudio = document.getElementById('preprocessed_audio');
+
+        if (preprocessedVideo && preprocessedAudio) {
+            preprocessedVideo.src = newVideoSrc;
+            preprocessedAudio.src = newAudioSrc;
+
+            // Opcionalmente, puedes cargar los nuevos recursos de video y audio
+            preprocessedVideo.load();
+            preprocessedAudio.load();
+        }
+
+        preprocess();
+    }
+
+    function execute_preprocessing(filePath){
+        eel.preprocess_video("./demo/"+filePath);
     }
 
     function run_inference(){
@@ -355,7 +388,6 @@
 
                     inference_button.classList.add('active');
 
-
                 }, 2000);
 
             }, 2000);
@@ -363,8 +395,9 @@
 }, 2000);
     }
 
+
+
     fileInput.addEventListener('change', () => {
-        execute_preprocessing();
         fileName = fileInput.value.replace(/^.*[\\\/]/, '');
         fileUpload.classList.add('active');
 
@@ -372,21 +405,10 @@
             preprocessing.classList.add('active');
             const preprocessingProgress = document.querySelector('.preprocessing-progress');
             preprocessingProgress.classList.add('active');
+            execute_preprocessing(fileName);
 
-            setTimeout(() => {
-
-                const inferenceProgress = document.querySelector('.preprocessing-progress');
-                inferenceProgress.classList.add('active');
-
-                // Show video and audio after inference progress animation
-                const videoAudioElements = document.querySelectorAll('.video-audio');
-                videoAudioElements.forEach(element => element.classList.remove('hidden'));
-                feature_extraction_button.classList.add('active');
-
-            }, 2000);
-        }, 500);
+        }, 0);
     });
-
 
 </script>
 </body>

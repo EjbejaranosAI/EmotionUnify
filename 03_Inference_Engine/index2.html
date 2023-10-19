@@ -37,7 +37,7 @@
             display: flex;
             justify-content: flex-start;
             align-items: center;
-            height: 100vh;
+            height: fit-content;
             flex-direction: column;
         }
 
@@ -307,6 +307,7 @@
 
 <script>
     const fileInput = document.getElementById('file-input');
+
     const fileUpload = document.querySelector('.file-upload');
     const preprocessing = document.querySelector('.preprocessing');
     const audio_features = document.querySelector('.audio-features');
@@ -316,48 +317,55 @@
     const inference = document.querySelector('.inference');
     const feature_extraction_button = document.querySelector('.feature-extraction-button');
     const inference_button = document.querySelector('.inference-button');
+    let fileName = null;
+
+    function execute_preprocessing(){
+
+    }
 
     function run_inference(){
         setTimeout(() => {
-                                    loading_inference.classList.add('active');
+            loading_inference.classList.add('active');
 
-                                    setTimeout(() => {
-                                        loading_inference.classList.remove('active');
-                                        inference.classList.add('active');
+            setTimeout(() => {
+                loading_inference.classList.remove('active');
+                inference.classList.add('active');
 
-                                    }, 2000);
+            }, 2000);
 
-                                }, 100);
+        }, 100);
     }
 
     function extract_features(){
         audio_features.classList.add('active');
-                    setTimeout(() => {
-                        const audio_svg = document.querySelector('.audio-svg');
-                        audio_svg.classList.remove('hidden');
+        setTimeout(() => {
+            const audio_svg = document.querySelector('.audio-svg');
+            audio_svg.classList.remove('hidden');
 
-                        image_features.classList.add('active');
-                        setTimeout(() => {
+            image_features.classList.add('active');
+            setTimeout(() => {
 
-                            const video_svg = document.querySelector('.video-svg');
-                            video_svg.classList.remove('hidden');
+                const video_svg = document.querySelector('.video-svg');
+                video_svg.classList.remove('hidden');
 
-                            text_features.classList.add('active');
-                            setTimeout(() => {
-                                const text_svg = document.querySelector('.text-svg');
-                                text_svg.classList.remove('hidden');
+                text_features.classList.add('active');
+                setTimeout(() => {
+                    const text_svg = document.querySelector('.text-svg');
+                    text_svg.classList.remove('hidden');
 
-                                inference_button.classList.add('active');
+                    inference_button.classList.add('active');
 
 
-                            }, 2000);
+                }, 2000);
 
-                        }, 2000);
+            }, 2000);
 
-                    }, 2000);
+}, 2000);
     }
 
     fileInput.addEventListener('change', () => {
+        execute_preprocessing();
+        fileName = fileInput.value.replace(/^.*[\\\/]/, '');
         fileUpload.classList.add('active');
 
         setTimeout(() => {

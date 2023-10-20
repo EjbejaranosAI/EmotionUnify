@@ -34,10 +34,10 @@ def preprocess_video(file_path):
 def inference(transcription):
     print("LLEGA AL INFERENCE")
 
-    #emotion = make_prediction_from_samples("./web/preprocessed_output/preprocessed_video_0.wav",
-    #                                   "./web/preprocessed_output/preprocessed_video.mp4",
-    #                                       transcription)
-    eel.update_emotion("Neutral")
+    emotion = make_prediction_from_samples("./web/preprocessed_output/preprocessed_video_0.wav",
+                                       "./web/preprocessed_output/preprocessed_video.mp4",
+                                           transcription)
+    eel.update_emotion(emotion)
 
 
 eel.start('index2.html', size=(800, 1000))

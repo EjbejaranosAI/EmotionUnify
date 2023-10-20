@@ -33,7 +33,7 @@ class AudioTranscriber:
             try:
                 with sr.AudioFile(audio_path) as source:
                     audio_data = self.recognizer.record(source)
-                transcription = self.recognizer.recognize_google(audio_data, language='es')
+                transcription = self.recognizer.recognize_google(audio_data, language='en')
                 return transcription
             except Exception as e:
                 print(f"Intento {intento + 1}: Error al transcribir el audio: {e}. Repitiendo en 1 segundo...")

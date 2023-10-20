@@ -374,6 +374,7 @@
         var emojiElement = document.querySelector('.smiley');
         var predictionValueElement = document.querySelector('.prediction-value');
 
+
         // Define an object that maps emotions to emojis
         var emojiMapping = {
             'Positive': '😃',
@@ -389,6 +390,7 @@
             inference.classList.add(emotion)
             predictionValueElement.textContent = emotion;
         } else {
+            alert("La emocion no es valida");
             // If the emotion is not in the mapping, you can show a default value or take another action.
             emojiElement.textContent = '😐';
             predictionValueElement.textContent = 'Neutral';

@@ -1,6 +1,10 @@
 import os
-from video_preprocessing import VideoPreprocessing
 import eel
+from video_preprocessing import VideoPreprocessing
+from audio import Audio
+from transcriber import AudioTranscriber
+from inference import make_prediction_from_samples
+
 
 eel.init('web')
 # Define the path of the folder you want to create

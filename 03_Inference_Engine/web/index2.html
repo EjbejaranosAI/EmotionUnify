@@ -105,7 +105,7 @@
             border: 1px dashed #c9d1d9;
         }
 
-        .inference {
+        .Positive {
             color: #58ff66;
             border: 1px solid #58ff66;
         }
@@ -113,6 +113,11 @@
         .file-upload.active, .preprocessing.active, .inference.active, .loading-inference.active{
             display: flex;
             justify-content: center;
+        }
+
+        .inference.active{
+            flex-flow: column nowrap;
+            align-content: center;
         }
 
         .preprocessing.active{
@@ -123,6 +128,16 @@
         .preprocessing.active .preprocessing-progress,
         .inference.active .inference-progress {
             display: block;
+        }
+
+        .Neutral{
+            border: 1px solid  #0366d6;
+            color: #0366d6;
+        }
+
+        .Negative{
+            border: 1px solid  #b31232;
+            color: #b31232;
         }
 
         .upload-progress, .preprocessing-progress, .feature-extraction-progress {
@@ -143,7 +158,7 @@
         }
 
         .preprocessing-progress.active{
-            animation: loading  8500ms linear forwards;
+            animation: loading  11000ms linear forwards;
         }
 
         .hidden {
@@ -176,12 +191,7 @@
             font-size: 48px;
         }
 
-        .smiley::after {
-            content: 'Good';
-            display: block;
-            font-size: 24px;
-            color: #58ff66;
-        }
+
         button{
             display: none;
         }
@@ -237,7 +247,7 @@
 </head>
 <body>
 <div class="header">
-    <h1>Multimodal Emotion Detection</h1>
+    <h1>Multimodal Sentimen Analysis</h1>
 </div>
 <div class="gb-container">
     <div class="file-upload active">
@@ -254,13 +264,14 @@
         <div class="preprocessing-output video-audio hidden">
             <video id="preprocessed_video" controls class="video-audio hidden" src=""></video>
             <audio id="preprocessed_audio" controls class="video-audio hidden" src=""></audio>
+            <p class="transcription">...</p>
         </div>
     </div>
-<button class="feature-extraction-button " onclick="extract_features()">
+<button class="inference-button " onclick="extract_features()">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
       <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
     </svg>
-    &nbsp&nbspExtract features
+    &nbsp&nbspInference
 </button>
     <div class="feature-extraction audio-features">
         <header>
@@ -295,12 +306,6 @@
 
         <div class="feature-extraction-progress active"></div>
     </div>
-    <button class="inference-button " onclick="run_inference()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
-          <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814l-3.5-2.5z"/>
-        </svg>
-        &nbsp&nbspRun Inference
-    </button>
 
     <button class="btn btn-primary loading-inference" type="button" disabled>
       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -308,6 +313,7 @@
     </button>
     <div class="inference">
         <div class="smiley">😃</div>
+        <div class="prediction-value">Good</div>
     </div>
 </div>
 
@@ -321,9 +327,10 @@
     const text_features = document.querySelector('.text-features');
     const loading_inference = document.querySelector('.loading-inference');
     const inference = document.querySelector('.inference');
-    const feature_extraction_button = document.querySelector('.feature-extraction-button');
+    const transcription = document.querySelector('.transcription');
     const inference_button = document.querySelector('.inference-button');
     let fileName = null;
+    let filePath = null;
 
     function preprocess(){
         const inferenceProgress = document.querySelector('.preprocessing-progress');
@@ -332,13 +339,15 @@
         // Show video and audio after inference progress animation
         const videoAudioElements = document.querySelectorAll('.video-audio');
         videoAudioElements.forEach(element => element.classList.remove('hidden'));
-        feature_extraction_button.classList.add('active');
+        inference_button.classList.add('active');
     }
 
     eel.expose(set_preprocessing_media_output_paths);
-    function set_preprocessing_media_output_paths(newVideoSrc, newAudioSrc) {
+    function set_preprocessing_media_output_paths(newVideoSrc, newAudioSrc,_transcription) {
+
         const preprocessedVideo = document.getElementById('preprocessed_video');
         const preprocessedAudio = document.getElementById('preprocessed_audio');
+        transcription.textContent=_transcription;
 
         if (preprocessedVideo && preprocessedAudio) {
             preprocessedVideo.src = newVideoSrc;
@@ -352,21 +361,43 @@
         preprocess();
     }
 
-    function execute_preprocessing(filePath){
-        eel.preprocess_video("./demo/"+filePath);
+    function execute_preprocessing(_filePath){
+        filePath = _filePath
+        eel.preprocess_video("./demo/"+_filePath);
+    }
+
+    eel.expose(update_emotion);
+    function update_emotion(emotion){
+        loading_inference.classList.remove('active');
+        inference.classList.add('active');
+        // Get the emoji and prediction text elements by their classes
+        var emojiElement = document.querySelector('.smiley');
+        var predictionValueElement = document.querySelector('.prediction-value');
+
+        // Define an object that maps emotions to emojis
+        var emojiMapping = {
+            'Positive': '😃',
+            'Neutral': '😐',
+            'Negative': '😢'
+        };
+
+        // Check if the provided emotion exists in the mapping
+        if (emotion in emojiMapping) {
+            // Change the emoji and prediction text
+            emojiElement.textContent = emojiMapping[emotion];
+
+            inference.classList.add(emotion)
+            predictionValueElement.textContent = emotion;
+        } else {
+            // If the emotion is not in the mapping, you can show a default value or take another action.
+            emojiElement.textContent = '😐';
+            predictionValueElement.textContent = 'Neutral';
+        }
     }
 
     function run_inference(){
-        setTimeout(() => {
-            loading_inference.classList.add('active');
-
-            setTimeout(() => {
-                loading_inference.classList.remove('active');
-                inference.classList.add('active');
-
-            }, 2000);
-
-        }, 100);
+        loading_inference.classList.add('active');
+        eel.inference(transcription.textContent);
     }
 
     function extract_features(){
@@ -385,8 +416,8 @@
                 setTimeout(() => {
                     const text_svg = document.querySelector('.text-svg');
                     text_svg.classList.remove('hidden');
-
-                    inference_button.classList.add('active');
+                    loading_inference.classList.remove('active');
+                    run_inference();
 
                 }, 2000);
 

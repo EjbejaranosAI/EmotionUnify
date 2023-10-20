@@ -19,7 +19,7 @@ Your all-in-one solution for generating and exploring multimodal datasets, desig
 Welcome to the "Lernmi Multimodal Sentiment Analysis Toolkit" repository – your comprehensive solution for analyzing sentiment across multiple modalities within the Lernmi educational platform. This repository empowers educational professionals, students, and developers to harness the power of textual audio and visual data to gain deeper insights into the emotional aspects of educational content.
 <h4 align="center">
 ![img.png](img.png)
-
+</h4>
 
 
 ## Índice

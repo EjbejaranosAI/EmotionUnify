@@ -13,10 +13,13 @@
 Your all-in-one solution for generating and exploring multimodal datasets, designed to empower research in sentiment analysis.
 
 
-# 🔥 EmotionUnify 🔥
-![image](04_SOTA_exploration/imgs/full_pipeline.png)
 
+![image](04_SOTA_exploration/imgs/full_pipeline.png)
+# 🔥 SentimentAnalizer 🔥
 Welcome to the "Lernmi Multimodal Sentiment Analysis Toolkit" repository – your comprehensive solution for analyzing sentiment across multiple modalities within the Lernmi educational platform. This repository empowers educational professionals, students, and developers to harness the power of textual audio and visual data to gain deeper insights into the emotional aspects of educational content.
+
+![img.png](img.png)
+
 
 
 ## Índice
